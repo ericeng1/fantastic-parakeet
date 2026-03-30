@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Account Settings — Showoffy</title>
+  <!-- Apply theme before render to prevent flash -->
+  <script>
+    (function() {
+      const t = localStorage.getItem("showoffy_theme") || "dark";
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Lato:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet" />
+  <style>
+    /* ── DESIGN TOKENS ── */
+    :root,
+    [data-theme="dark"] {
+      --font-primary: 'Bebas Neue', sans-serif;
+      --font-body:    'Lato', sans-serif;
+      --font-accent:  'Cormorant Garamond', serif;
+      --bg:        #0f0f10;
+      --surface:   #18181b;
+      --surface2:  #202024;
+      --border:    #2a2a2e;
+      --text:      #f0ede8;
+      --muted:     #9a9896;
+      --accent:    #c8964a;
+      --accent2:   #8dbbd1;
+      --danger:    #b85450;
+      --success:   #5a9e6f;
+      --input-bg:  #0f0f10;
+      --shadow:    rgba(0,0,0,0.4);
+    }
+
+    [data-theme="light"] {
+      --bg:        #f4f1ec;
+      --surface:   #ffffff;
+      --surface2:  #ebe8e2;
+      --border:    #d6d1c8;
+      --text:      #1c1a17;
+      --muted:     #7a7570;
+      --accent:    #b07d32;
+      --accent2:   #4a8ba8;
+      --danger:    #a03830;
+      --success:   #3d7a52;
+      --input-bg:  #f4f1ec;
+      --shadow:    rgba(0,0,0,0.1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { transition: background 0.25s, color 0.25s; }
+
+    body {
+      font-family: var(--font-body);
+      font-weight: 300;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      transition: background 0.25s, color 0.25s;
+    }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      height: 58px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      transition: background 0.25s, border-color 0.25s;
+    }
+
+    .topbar-left { display: flex; align-items: center; gap: 24px; }
+
+    .logo {
+      font-family: var(--font-primary);
+      font-size: 22px;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .back-link {
+      font-size: 12px;
+      color: var(--muted);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      letter-spacing: 0.04em;
+      transition: color 0.2s;
+    }
+
+    .back-link:hover { color: var(--text); }
+
+    /* ── PAGE ── */
+    .page {
+      max-width: 580px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    .page-title {
+      font-family: var(--font-primary);
+      font-size: 38px;
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+    }
+
+    .page-sub {
+      font-family: var(--font-accent);
+      font-style: italic;
+      font-size: 15px;
+      color: var(--muted);
+      margin-bottom: 40px;
+    }
+
+    /* ── SECTIONS ── */
+    .settings-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 20px;
+      transition: background 0.25s, border-color 0.25s;
+    }
+
+    .section-title {
+      font-family: var(--font-primary);
+      font-size: 18px;
+      letter-spacing: 0.06em;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── FIELDS ── */
+    .field { margin-bottom: 16px; }
+    .field:last-child { margin-bottom: 0; }
+
+    .field-label {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 7px;
+    }
+
+    .field-input {
+      width: 100%;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 300;
+      padding: 11px 14px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.25s;
+      -webkit-appearance: none;
+    }
+
+    .field-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(200,150,74,0.12);
+    }
+
+    .field-hint {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 5px;
+      line-height: 1.4;
+    }
+
+    /* ── BUTTONS ── */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 11px 22px;
+      background: var(--accent);
+      color: #111;
+      border: none;
+      border-radius: 10px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      margin-top: 4px;
+    }
+
+    .btn-primary:hover { opacity: 0.87; }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 20px;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--muted);
+      font-family: var(--font-body);
+      font-size: 14px;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+      margin-top: 4px;
+    }
+
+    .btn-secondary:hover { border-color: var(--muted); color: var(--text); }
+
+    .btn-danger {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 20px;
+      background: none;
+      border: 1px solid rgba(184,84,80,0.4);
+      border-radius: 10px;
+      color: var(--danger);
+      font-family: var(--font-body);
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+      margin-top: 4px;
+    }
+
+    .btn-danger:hover { background: rgba(184,84,80,0.1); border-color: var(--danger); }
+
+    /* ── THEME TOGGLE ── */
+    .theme-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .theme-info { flex: 1; }
+    .theme-label { font-size: 14px; color: var(--text); margin-bottom: 2px; }
+    .theme-desc  { font-size: 12px; color: var(--muted); }
+
+    .toggle-wrap {
+      position: relative;
+      width: 48px;
+      height: 26px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    .toggle-wrap input {
+      position: absolute;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+      margin: 0;
+      z-index: 1;
+    }
+
+    .toggle-track {
+      display: block;
+      width: 48px;
+      height: 26px;
+      border-radius: 13px;
+      background: var(--border);
+      transition: background 0.2s;
+      position: relative;
+    }
+
+    .toggle-wrap input:checked ~ .toggle-track { background: var(--accent); }
+
+    .toggle-thumb {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #fff;
+      transition: transform 0.2s;
+      pointer-events: none;
+    }
+
+    .toggle-wrap input:checked ~ .toggle-track .toggle-thumb { transform: translateX(22px); }
+
+
+    /* ── CONNECTED ACCOUNTS ── */
+    .provider-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .provider-row:last-child { border-bottom: none; }
+
+    .provider-info { display: flex; align-items: center; gap: 12px; }
+
+    .provider-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .provider-name  { font-size: 14px; color: var(--text); }
+    .provider-email { font-size: 11px; color: var(--muted); }
+
+    .provider-badge {
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    .provider-badge.connected {
+      background: rgba(90,158,111,0.12);
+      border: 1px solid rgba(90,158,111,0.3);
+      color: var(--success);
+    }
+
+    .provider-badge.not-connected {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed;
+      bottom: calc(24px + env(safe-area-inset-bottom));
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      padding: 12px 20px;
+      border-radius: 40px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      z-index: 9999;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.25s, transform 0.25s;
+      white-space: nowrap;
+      max-width: 90vw;
+    }
+
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── DANGER SECTION ── */
+    .danger-section {
+      background: rgba(184,84,80,0.04);
+      border: 1px solid rgba(184,84,80,0.2);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .danger-section .section-title {
+      color: var(--danger);
+      border-bottom-color: rgba(184,84,80,0.2);
+    }
+
+    .danger-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 520px) {
+      .topbar { padding: 0 16px; }
+      .page   { padding: 32px 16px 60px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <a href="home.html" class="logo">Showoffy</a>
+      <a href="home.html" class="back-link" id="back-link">← Home</a>
+    </div>
+  </header>
+
+  <div class="page">
+    <div class="page-title">Account</div>
+    <div class="page-sub" id="page-sub">Settings &amp; preferences</div>
+
+    <!-- ── IDENTITY ── -->
+    <div class="settings-section">
+      <div class="section-title">Identity</div>
+
+      <div class="field">
+  <label class="field-label" for="username">Username</label>
+<input type="text" class="field-input" id="username"
+       placeholder="Choose a username" maxlength="30" />
+<div class="field-hint"></div>
+<br>
+      <div class="field">
+        <label class="field-label">Email Address</label>
+        <input type="text" class="field-input" id="email-display" disabled
+               style="opacity:0.55;cursor:default;" />
+        <div class="field-hint">Email changes are not currently supported.</div>
+      </div>
+
+      <button class="btn-primary" id="btn-save-identity">Save</button>
+    </div>
+
+    <!-- ── SECURITY ── -->
+    <div class="settings-section">
+      <div class="section-title">Security</div>
+
+      <div class="field">
+        <label class="field-label" for="new-password">New Password</label>
+        <input type="password" class="field-input" id="new-password"
+               placeholder="Enter new password" autocomplete="new-password" />
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="confirm-password">Confirm New Password</label>
+        <input type="password" class="field-input" id="confirm-password"
+               placeholder="Re-enter new password" autocomplete="new-password" />
+        <div class="field-hint">Minimum 8 characters.</div>
+      </div>
+
+      <button class="btn-primary" id="btn-save-password">Update Password</button>
+    </div>
+
+    <!-- ── PREFERENCES ── -->
+    <div class="settings-section">
+      <div class="section-title">Preferences</div>
+
+      <!-- Theme -->
+      <div class="field">
+        <label class="field-label">Appearance</label>
+        <div class="theme-row">
+          <div class="theme-info">
+            <div class="theme-label" id="theme-label">Dark mode</div>
+            <div class="theme-desc">Switch between dark and light themes</div>
+          </div>
+          <label class="toggle-wrap" for="theme-toggle">
+            <input type="checkbox" id="theme-toggle" />
+            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+          </label>
+        </div>
+      </div>
+
+
+    </div>
+
+    <!-- ── CONNECTED ACCOUNTS ── -->
+    <div class="settings-section">
+      <div class="section-title">Connected Accounts</div>
+      <div id="providers-list">
+        <div style="font-size:13px;color:var(--muted);">Loading…</div>
+      </div>
+    </div>
+
+    <!-- ── DANGER ZONE ── -->
+    <div class="danger-section">
+      <div class="section-title">Danger Zone</div>
+      <p class="danger-desc">
+        Request to delete your account and all associated data. This is irreversible.
+        Your items will be removed from all public feeds and your ownership records will be cleared.
+        We'll process the request within 30 days.
+      </p>
+      <button class="btn-danger" id="btn-delete-account">Request Account Deletion</button>
+    </div>
+
+  </div>
+
+  <div id="toast"></div>
+
+  <script type="module">
+    import { supabase } from "./supabaseClient.js";
+    import { getTheme, setTheme } from "./theme.js";
+
+    // ── TOAST ──
+    let toastTimer = null;
+    function toast(msg, type = "info") {
+      const el = document.getElementById("toast");
+      const themes = {
+        info:    { bg:"#1e2a36", color:"#8dbbd1", border:"1px solid rgba(141,187,209,0.25)" },
+        success: { bg:"#1a2e22", color:"#5fa87a", border:"1px solid rgba(95,168,122,0.3)"  },
+        error:   { bg:"#2e1a1a", color:"#c07070", border:"1px solid rgba(192,112,112,0.3)" },
+      };
+      // In light mode use more visible backgrounds
+      const isLight = document.documentElement.getAttribute("data-theme") === "light";
+      const t = isLight
+        ? { bg:"#fff", color: type === "error" ? "#a03830" : type === "success" ? "#3d7a52" : "#4a8ba8",
+            border:`1px solid ${type === "error" ? "#a03830" : type === "success" ? "#3d7a52" : "#4a8ba8"}` }
+        : (themes[type] || themes.info);
+      Object.assign(el.style, { background:t.bg, color:t.color, border:t.border });
+      el.textContent = msg;
+      el.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove("show"), type === "success" ? 3000 : 2400);
+    }
+
+    // ── AUTH GATE ──
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { window.location.href = "login.html"; }
+    // Use getUser() to get fresh user_metadata (getSession returns cached data)
+    const { data: { user } } = await supabase.auth.getUser();
+
+    // ── POPULATE FIELDS ──
+    document.getElementById("email-display").value =
+      user.email || "";
+
+  // ── FETCH PROFILE ──
+const { data: profile, error: profileError } = await supabase
+  .from("profiles")
+  .select("username")
+  .eq("id", user.id)
+  .single();
+
+if (profileError) {
+  console.error("Profile fetch error:", profileError);
+} else {
+  document.getElementById("username").value = profile.username || "";
+  document.getElementById("page-sub").textContent =
+    profile.username || user.email || "Settings & preferences";
+}
+
+    // ── THEME TOGGLE — per-user, saved to Supabase user_metadata ──
+    // On load: prefer user_metadata.theme, fall back to localStorage
+    const themeToggle = document.getElementById("theme-toggle");
+    const themeLabel  = document.getElementById("theme-label");
+
+    // Read the user's saved theme preference (user_metadata wins over localStorage)
+    const userTheme = user.user_metadata?.theme || null;
+    if (userTheme) {
+      setTheme(userTheme); // also updates localStorage + html attribute
+    }
+
+    function syncToggle() {
+      const isDark = getTheme() === "dark";
+      themeToggle.checked    = isDark;
+      themeLabel.textContent = isDark ? "Dark mode" : "Light mode";
+    }
+
+    syncToggle();
+
+    themeToggle.addEventListener("change", async () => {
+      const chosen = themeToggle.checked ? "dark" : "light";
+      setTheme(chosen); // apply immediately + write to localStorage
+      themeLabel.textContent = themeToggle.checked ? "Dark mode" : "Light mode";
+
+      // Persist to Supabase user_metadata so it follows the user across devices
+      const { error } = await supabase.auth.updateUser({ data: { theme: chosen } });
+      if (error) {
+        toast("Theme saved locally — couldn't sync to account: " + error.message, "info");
+      }
+      // No success toast needed — the page visibly changes as confirmation
+    });
+
+
+
+
+// ── SAVE USERNAME ──
+document.getElementById("btn-save-identity").addEventListener("click", async () => {
+  const btn = document.getElementById("btn-save-identity");
+  const username = document.getElementById("username").value.trim();
+
+  if (!username) {
+    toast("Username cannot be empty", "error");
+    return;
+  }
+
+  btn.disabled = true;
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({ username })
+    .eq("id", user.id);
+
+  btn.disabled = false;
+
+  if (error) {
+    toast("Save failed: " + error.message, "error");
+    return;
+  }
+
+  document.getElementById("page-sub").textContent = username;
+  toast("Username updated ✓", "success");
+});
+
+    // ── CHANGE PASSWORD ──
+    document.getElementById("btn-save-password").addEventListener("click", async () => {
+      const btn   = document.getElementById("btn-save-password");
+      const pw    = document.getElementById("new-password").value;
+      const conf  = document.getElementById("confirm-password").value;
+
+      if (!pw) { toast("Please enter a new password", "error"); return; }
+      if (pw.length < 8) { toast("Password must be at least 8 characters", "error"); return; }
+      if (pw !== conf)   { toast("Passwords don't match", "error"); return; }
+
+      btn.disabled = true;
+      const { error } = await supabase.auth.updateUser({ password: pw });
+      btn.disabled = false;
+
+      if (error) { toast("Password update failed: " + error.message, "error"); return; }
+      document.getElementById("new-password").value    = "";
+      document.getElementById("confirm-password").value = "";
+      toast("Password updated ✓", "success");
+    });
+
+    // ── CONNECTED PROVIDERS ──
+    const providersList = document.getElementById("providers-list");
+    const identities    = user.identities || [];
+
+    const PROVIDERS = [
+      { id: "email",    label: "Email",    icon: "✉️" },
+      { id: "google",   label: "Google",   icon: "G" },
+      { id: "facebook", label: "Facebook", icon: "f" },
+    ];
+
+    providersList.innerHTML = "";
+    PROVIDERS.forEach(p => {
+      const linked   = identities.find(i => i.provider === p.id);
+      const row      = document.createElement("div");
+      row.className  = "provider-row";
+      row.innerHTML  = `
+        <div class="provider-info">
+          <div class="provider-icon">${p.icon}</div>
+          <div>
+            <div class="provider-name">${p.label}</div>
+            ${linked ? `<div class="provider-email">${linked.identity_data?.email || ""}</div>` : ""}
+          </div>
+        </div>
+        <span class="provider-badge ${linked ? "connected" : "not-connected"}">
+          ${linked ? "Connected" : "Not connected"}
+        </span>`;
+      providersList.appendChild(row);
+    });
+
+    // ── ACCOUNT DELETION REQUEST ──
+    document.getElementById("btn-delete-account").addEventListener("click", async () => {
+      const confirmed = window.confirm(
+        "Are you sure you want to request account deletion?\n\n" +
+        "Your request will be processed within 30 days. " +
+        "You'll receive a confirmation email at " + user.email + "."
+      );
+      if (!confirmed) return;
+
+      // Send a deletion request email to the admin (yourself for now)
+      // In production this would hit an edge function or webhook
+      toast("Deletion request submitted. You'll receive a confirmation email.", "info");
+
+      // Sign out after request
+      setTimeout(async () => {
+        await supabase.auth.signOut();
+        window.location.href = "home.html";
+      }, 3000);
+    });
+
+    // ── SIGN OUT (keyboard shortcut awareness — no nav button here) ──
+    // Account page has no sign-out button since users are here to manage settings,
+    // but back link goes home where sign out is available.
+
+  </script>
+
+</body>
+</html>

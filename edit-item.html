@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <script>
+    (function() {
+      var t = localStorage.getItem("showoffy_theme") || "dark";
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Edit Item — Showoffy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Lato:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --font-primary: 'Bebas Neue', sans-serif;
+      --font-body:    'Lato', sans-serif;
+      --font-accent:  'Cormorant Garamond', serif;
+      --bg:       #0f0f10;
+      --surface:  #18181b;
+      --surface2: #202024;
+      --border:   #2a2a2e;
+      --text:     #f0ede8;
+      --muted:    #9a9896;
+      --accent:   #c8964a;
+      --accent2:  #8dbbd1;
+      --success:  #5fa87a;
+      --danger:   #c05050;
+      --radius:   12px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-body);
+      font-weight: 300;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      min-height: 100dvh;
+    }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-family: var(--font-primary);
+      font-size: 20px;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .back-btn {
+      font-size: 12px;
+      color: var(--muted);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: color 0.2s;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: var(--font-body);
+      padding: 0;
+    }
+
+    .back-btn:hover { color: var(--text); }
+
+    /* ── PAGE HEADER ── */
+    .page-header {
+      padding: 28px 20px 16px;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .page-title {
+      font-family: var(--font-primary);
+      font-size: 32px;
+      letter-spacing: 0.06em;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .page-sub {
+      font-family: var(--font-accent);
+      font-style: italic;
+      font-size: 15px;
+      color: var(--muted);
+    }
+
+    /* ── LOADING / ERROR ── */
+    .state-msg {
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    /* ── FORM ── */
+    .edit-form {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 0 20px calc(48px + env(safe-area-inset-bottom));
+    }
+
+    /* ── SECTION BLOCKS ── */
+    .edit-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-family: var(--font-primary);
+      font-size: 18px;
+      letter-spacing: 0.06em;
+      color: var(--text);
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── FIELD GROUPS ── */
+    .field-group { margin-bottom: 16px; }
+    .field-group:last-child { margin-bottom: 0; }
+
+    .field-label {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 7px;
+    }
+
+    .field-input, .field-select, .field-textarea {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 300;
+      padding: 12px 14px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      -webkit-appearance: none;
+    }
+
+    .field-input:focus, .field-select:focus, .field-textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(200,150,74,0.12);
+    }
+
+    .field-select { cursor: pointer; }
+    .field-select option { background: var(--surface); }
+
+    .field-textarea { resize: vertical; min-height: 80px; }
+
+    /* Date field wrapper */
+    .date-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .date-wrap .field-input { flex: 1; padding-right: 44px; }
+    .date-cal-btn {
+      position: absolute; right: 0; top: 0; height: 100%; width: 42px;
+      display: flex; align-items: center; justify-content: center;
+      background: none; border: none; cursor: pointer;
+      color: var(--muted); font-size: 16px;
+      border-radius: 0 10px 10px 0;
+      transition: color 0.15s, background 0.15s;
+    }
+    .date-cal-btn:hover { color: var(--accent); background: rgba(200,150,74,0.06); }
+    .date-today-btn {
+      margin-top: 6px; background: none; border: none;
+      font-family: var(--font-body); font-size: 11px; color: var(--accent);
+      cursor: pointer; letter-spacing: 0.06em; padding: 0;
+      display: inline-flex; align-items: center; gap: 4px; opacity: 0.8;
+      transition: opacity 0.15s;
+    }
+    .date-today-btn:hover { opacity: 1; }
+
+    /* Add Similar button */
+    .add-similar-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px; border-radius: 8px;
+      border: 1px solid rgba(141,187,209,0.35);
+      background: rgba(141,187,209,0.06);
+      color: var(--accent2);
+      font-family: var(--font-body); font-size: 13px; font-weight: 500;
+      cursor: pointer; text-decoration: none;
+      transition: border-color 0.15s, background 0.15s;
+      white-space: nowrap;
+    }
+    .add-similar-btn:hover { border-color: var(--accent2); background: rgba(141,187,209,0.12); }
+
+    /* Privacy row with Add Similar */
+    .privacy-actions {
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    }
+    .privacy-row-inner {
+      display: flex; align-items: center;
+      justify-content: space-between; flex: 1; cursor: pointer;
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    /* ── CHIP SELECTOR ── */
+    .chip-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      padding: 9px 15px;
+      border-radius: 40px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--muted);
+      font-family: var(--font-body);
+      font-size: 13px;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    .chip.selected {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(200,150,74,0.08);
+    }
+
+    .chip-add {
+      padding: 9px 15px;
+      border-radius: 40px;
+      border: 1px solid rgba(200,150,74,0.4);
+      background: rgba(200,150,74,0.06);
+      color: #d4a55c;
+      font-family: var(--font-body);
+      font-size: 13px;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    .chip-add:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── PRIVACY TOGGLE ── */
+    .privacy-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .privacy-info { flex: 1; }
+    .privacy-title { font-size: 14px; color: var(--text); margin-bottom: 2px; }
+    .privacy-desc  { font-size: 12px; color: var(--muted); }
+
+    .toggle-wrap { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+    .toggle-wrap input { position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; margin: 0; z-index: 1; }
+    .toggle-track { display: block; width: 44px; height: 24px; border-radius: 12px; background: var(--border); transition: background 0.2s; position: relative; }
+    .toggle-wrap input:checked ~ .toggle-track { background: var(--accent); }
+    .toggle-thumb { position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform 0.2s; pointer-events: none; }
+    .toggle-wrap input:checked ~ .toggle-track .toggle-thumb { transform: translateX(20px); }
+
+    /* ── PHOTO GRID ── */
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+      gap: 10px;
+    }
+
+    .photo-cell {
+      position: relative;
+      aspect-ratio: 1;
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+    }
+
+    .photo-cell img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .photo-remove {
+      position: absolute;
+      top: 4px; right: 4px;
+      width: 22px; height: 22px;
+      background: rgba(0,0,0,0.65);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      font-size: 11px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      transition: background 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .photo-remove:hover { background: rgba(192,80,80,0.85); }
+
+    .photo-add-cell {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      border: 2px dashed var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .photo-add-cell:hover { border-color: var(--accent); background: rgba(200,150,74,0.04); }
+    .photo-add-cell .plus { font-size: 20px; color: var(--muted); }
+    .photo-add-cell .add-text { font-size: 10px; color: var(--muted); letter-spacing: 0.04em; }
+
+    .photo-spinner {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .spinner-ring {
+      width: 20px; height: 20px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #photo-file-input { display: none; }
+
+    /* ── SAVE BUTTON ── */
+    .btn-save {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 16px;
+      background: var(--accent);
+      color: #111;
+      border: none;
+      border-radius: var(--radius);
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      -webkit-tap-highlight-color: transparent;
+      margin-bottom: 12px;
+    }
+
+    .btn-save:hover  { opacity: 0.88; }
+    .btn-save:active { transform: scale(0.99); }
+    .btn-save:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── DELETE SECTION ── */
+    .delete-section {
+      background: rgba(192,80,80,0.05);
+      border: 1px solid rgba(192,80,80,0.2);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .delete-title {
+      font-family: var(--font-primary);
+      font-size: 18px;
+      letter-spacing: 0.06em;
+      color: var(--danger);
+      margin-bottom: 8px;
+    }
+
+    .delete-desc {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .btn-delete {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 14px;
+      background: none;
+      border: 1px solid rgba(192,80,80,0.4);
+      border-radius: var(--radius);
+      color: var(--danger);
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-delete:hover { background: rgba(192,80,80,0.1); border-color: var(--danger); }
+
+    /* ── TOAST ── */
+    #edit-toast {
+      position: fixed;
+      bottom: calc(24px + env(safe-area-inset-bottom));
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      padding: 12px 20px;
+      border-radius: 40px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      z-index: 9999;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.25s, transform 0.25s;
+      white-space: nowrap;
+      max-width: 90vw;
+    }
+
+    #edit-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── CONFIRM DIALOG ── */
+    .dialog-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 10000;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: env(safe-area-inset-bottom);
+      animation: overlayIn 0.2s ease;
+    }
+
+    @keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .dialog-sheet {
+      background: #1e1e22;
+      border: 1px solid var(--border);
+      border-radius: 20px 20px 0 0;
+      padding: 24px 24px 32px;
+      width: 100%;
+      max-width: 520px;
+      animation: sheetIn 0.25s cubic-bezier(0.34,1.1,0.64,1);
+    }
+
+    @keyframes sheetIn {
+      from { transform: translateY(40px); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+
+    .dialog-title {
+      font-family: var(--font-primary);
+      font-size: 22px;
+      letter-spacing: 0.06em;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .dialog-msg {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    .dialog-btns { display: flex; gap: 10px; }
+
+    .dialog-cancel {
+      flex: 1; padding: 14px;
+      border-radius: 10px;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: var(--font-body);
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    .dialog-confirm {
+      flex: 2; padding: 14px;
+      border-radius: 10px;
+      background: var(--danger);
+      border: none;
+      color: #fff;
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    @media (max-width: 480px) {
+      .topbar { padding: 10px 16px; }
+      .page-header, .edit-form { padding-left: 16px; padding-right: 16px; }
+      .field-row { grid-template-columns: 1fr; }
+    }
+
+    /* ── LIGHT THEME OVERRIDES ── */
+    [data-theme="light"] {
+      --bg:       #f4f1ec;
+      --surface:  #ffffff;
+      --surface2: #ebe8e2;
+      --border:   #d6d1c8;
+      --text:     #1c1a17;
+      --muted:    #7a7570;
+      --accent:   #b07d32;
+      --accent2:  #4a8ba8;
+      --danger:   #a03830;
+      --input-bg: #f4f1ec;
+    }
+
+    html { transition: background 0.25s; }
+    body { transition: background 0.25s, color 0.25s; }
+    .topbar { transition: background 0.25s, border-color 0.25s; }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <a id="back-link" href="my-items.html" class="back-btn">← My Collection</a>
+    <a href="home.html" class="logo">Showoffy</a>
+    <div style="width:80px;"></div><!-- spacer -->
+  </header>
+
+  <div id="state-loading" class="state-msg">Loading item…</div>
+  <div id="state-error"   class="state-msg" style="display:none;">Item not found.</div>
+
+  <div id="edit-page" style="display:none;">
+    <div class="page-header">
+      <div class="page-title">Edit Item</div>
+      <div class="page-sub" id="page-sub"></div>
+    </div>
+
+    <div class="edit-form">
+
+      <!-- Photos -->
+      <div class="edit-section">
+        <div class="section-title">Photos</div>
+        <div class="photo-grid" id="photo-grid"></div>
+        <input type="file" id="photo-file-input" accept="image/*" multiple />
+      </div>
+
+      <!-- Category & Material -->
+      <div class="edit-section">
+        <div class="section-title">Classification</div>
+        <div class="field-group">
+          <label class="field-label">Category</label>
+          <div class="chip-group" id="category-chips"></div>
+        </div>
+        <div class="field-group" style="margin-bottom:0;">
+          <label class="field-label">Material</label>
+          <div class="chip-group" id="material-chips"></div>
+        </div>
+      </div>
+
+      <!-- Metadata -->
+      <div class="edit-section">
+        <div class="section-title">Details</div>
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label" for="edit-variant">Variant</label>
+            <input type="text" class="field-input" id="edit-variant" placeholder="e.g. Prybaby…" />
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="edit-size">Size (inches)</label>
+            <input type="number" class="field-input" id="edit-size" step="0.01" inputmode="decimal" />
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label" for="edit-msrp">MSRP ($)</label>
+            <input type="number" class="field-input" id="edit-msrp" step="0.01" inputmode="decimal" />
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="edit-born">Date Acquired</label>
+            <div class="date-wrap">
+              <input type="date" class="field-input" id="edit-born" />
+              <button type="button" class="date-cal-btn" id="edit-born-cal-btn" title="Open calendar" aria-label="Open calendar">📅</button>
+            </div>
+            <button type="button" class="date-today-btn" id="edit-born-today-btn">⊕ Use today's date</button>
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="edit-extra">Extra</label>
+          <input type="text" class="field-input" id="edit-extra" />
+        </div>
+        <div class="field-group" style="margin-bottom:0;">
+          <label class="field-label" for="edit-comments">Personal Notes</label>
+          <textarea class="field-textarea" id="edit-comments"></textarea>
+        </div>
+      </div>
+
+      <!-- Privacy + Add Similar -->
+      <div class="edit-section">
+        <div class="section-title">Visibility</div>
+        <div class="privacy-actions">
+          <label class="privacy-row-inner" for="edit-private">
+            <div class="privacy-info">
+              <div class="privacy-title">Private entry</div>
+              <div class="privacy-desc">Only visible to you</div>
+            </div>
+            <div class="toggle-wrap">
+              <input type="checkbox" id="edit-private" />
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            </div>
+          </label>
+          <a id="add-similar-btn" href="#" class="add-similar-btn" style="display:none;">⊕ Add Similar</a>
+        </div>
+      </div>
+
+      <!-- Save -->
+      <button class="btn-save" id="save-btn">Save Changes</button>
+
+      <!-- Delete -->
+      <div class="delete-section">
+        <div class="delete-title">Delete Item</div>
+        <p class="delete-desc">This item will be hidden from all views. It won't be permanently removed — you can contact support to recover it if needed.</p>
+        <button class="btn-delete" id="delete-btn">⊘ Delete this item</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="edit-toast"></div>
+
+  <script type="module">
+    import { supabase } from "./supabaseClient.js";
+    import { syncThemeFromUser } from "./theme.js";
+    import { addNewLookup } from "./form-shared.js";
+
+    const IMG_COLS  = ["image_url1","image_url2","image_url3","image_url4","image_url5",
+                       "image_url6","image_url7","image_url8","image_url9","image_url10"];
+    const BUCKET    = "item-images";
+    const MAX_PHOTOS = 10;
+
+    let currentItem   = null;
+    let currentUser   = null;
+    let imageUrls     = []; // mutable working copy
+    let catId         = null;
+    let matId         = null;
+
+    // ── TOAST ──
+    let toastTimer = null;
+    function toast(msg, type = "info") {
+      const el = document.getElementById("edit-toast");
+      const themes = {
+        info:    { bg:"#1e2a36", color:"#8dbbd1", border:"1px solid rgba(141,187,209,0.25)" },
+        success: { bg:"#1a2e22", color:"#5fa87a", border:"1px solid rgba(95,168,122,0.3)"  },
+        error:   { bg:"#2e1a1a", color:"#c07070", border:"1px solid rgba(192,112,112,0.3)" },
+        upload:  { bg:"#2a2108", color:"#c8964a", border:"1px solid rgba(200,150,74,0.3)"  },
+      };
+      const t = themes[type] || themes.info;
+      Object.assign(el.style, { background: t.bg, color: t.color, border: t.border });
+      el.textContent = msg;
+      el.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove("show"), type === "success" ? 3000 : 2200);
+    }
+
+    // ── HAPTIC ──
+    function haptic(s = "light") {
+      if ("vibrate" in navigator) navigator.vibrate({ light:[10], medium:[20], success:[10,60,10], error:[40,30,40] }[s] || [10]);
+    }
+
+    // ── CONFIRM DIALOG ──
+    function confirm(title, msg, confirmLabel = "Confirm", danger = false) {
+      return new Promise(resolve => {
+        const overlay = document.createElement("div");
+        overlay.className = "dialog-overlay";
+        overlay.innerHTML = `
+          <div class="dialog-sheet">
+            <div class="dialog-title">${title}</div>
+            <p class="dialog-msg">${msg}</p>
+            <div class="dialog-btns">
+              <button class="dialog-cancel">Cancel</button>
+              <button class="dialog-confirm" style="${danger ? "background:var(--danger)" : "background:var(--accent);color:#111"}">${confirmLabel}</button>
+            </div>
+          </div>`;
+        document.body.appendChild(overlay);
+        const close = v => { overlay.style.opacity = "0"; overlay.style.transition = "opacity 0.18s"; setTimeout(() => overlay.remove(), 180); resolve(v); };
+        overlay.querySelector(".dialog-cancel").onclick  = () => close(false);
+        overlay.querySelector(".dialog-confirm").onclick = () => close(true);
+        overlay.addEventListener("click", e => { if (e.target === overlay) close(false); });
+      });
+    }
+
+    // ── CHIP LOADER ──
+    async function loadChips(table, containerId, onSelect) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = `<span style="font-size:13px;color:var(--muted)">Loading…</span>`;
+
+      const { data, error } = await supabase.from(table).select("id, name").order("name");
+      if (error) { container.innerHTML = `<span style="color:var(--danger);font-size:13px;">Failed to load</span>`; return { setSelected: () => {}, addAndSelect: () => {} }; }
+
+      container.innerHTML = "";
+
+      let selectedId = null;
+
+      const renderChip = (id, name) => {
+        const chip = document.createElement("div");
+        chip.className = "chip";
+        chip.dataset.id = String(id);
+        chip.textContent = name;
+        chip.addEventListener("click", () => {
+          container.querySelectorAll(".chip:not(.chip-add)").forEach(c => c.classList.remove("selected"));
+          chip.classList.add("selected");
+          haptic("light");
+          selectedId = id;
+          onSelect(id);
+        });
+        return chip;
+      };
+
+      data.forEach(row => container.appendChild(renderChip(row.id, row.name)));
+
+      // Add chip
+      const addChip = document.createElement("div");
+      addChip.className = "chip chip-add";
+      addChip.textContent = "＋ Add";
+      addChip.addEventListener("click", async () => {
+        const result = await addNewLookup(table);
+        if (!result) return;
+        const newChip = renderChip(result.id, result.name);
+        container.insertBefore(newChip, addChip);
+        container.querySelectorAll(".chip:not(.chip-add)").forEach(c => c.classList.remove("selected"));
+        newChip.classList.add("selected");
+        selectedId = result.id;
+        onSelect(result.id);
+      });
+      container.appendChild(addChip);
+
+      return {
+        setSelected(id) {
+          selectedId = id;
+          container.querySelectorAll(".chip:not(.chip-add)").forEach(c => {
+            c.classList.toggle("selected", String(c.dataset.id) === String(id));
+          });
+        },
+        getSelected() { return selectedId; },
+      };
+    }
+
+    // ── PHOTO GRID ──
+    function renderPhotoGrid() {
+      const grid = document.getElementById("photo-grid");
+      grid.innerHTML = "";
+
+      imageUrls.forEach((url, i) => {
+        const cell = document.createElement("div");
+        cell.className = "photo-cell";
+        cell.innerHTML = `<img src="${url}" alt="" loading="lazy" />`;
+
+        const rm = document.createElement("button");
+        rm.className = "photo-remove";
+        rm.innerHTML = "✕";
+        rm.title = "Remove photo";
+        rm.addEventListener("click", async () => {
+          const ok = await confirm("Remove Photo", "Remove this photo from the item? The image will be cleared from this slot.", "Remove", true);
+          if (!ok) return;
+          imageUrls.splice(i, 1);
+          renderPhotoGrid();
+          haptic("medium");
+          toast("Photo removed — save to confirm", "info");
+        });
+
+        cell.appendChild(rm);
+        grid.appendChild(cell);
+      });
+
+      // Add tile
+      if (imageUrls.length < MAX_PHOTOS) {
+        const addCell = document.createElement("div");
+        addCell.className = "photo-add-cell";
+        addCell.innerHTML = `<span class="plus">＋</span><span class="add-text">${MAX_PHOTOS - imageUrls.length} left</span>`;
+        addCell.addEventListener("click", () => { document.getElementById("photo-file-input").value = ""; document.getElementById("photo-file-input").click(); });
+        grid.appendChild(addCell);
+      }
+    }
+
+    // ── UPLOAD HANDLER ──
+    document.getElementById("photo-file-input").addEventListener("change", async (e) => {
+      const files = Array.from(e.target.files).slice(0, MAX_PHOTOS - imageUrls.length);
+      if (!files.length) return;
+      e.target.value = "";
+
+      const grid = document.getElementById("photo-grid");
+
+      for (const file of files) {
+        // Optimistic spinner
+        const spinner = document.createElement("div");
+        spinner.className = "photo-spinner";
+        spinner.innerHTML = `<div class="spinner-ring"></div>`;
+        const addCell = grid.querySelector(".photo-add-cell");
+        if (addCell) grid.insertBefore(spinner, addCell);
+        else grid.appendChild(spinner);
+
+        haptic("light");
+        toast("Uploading photo…", "upload");
+
+        try {
+          const ext = file.name.split(".").pop();
+          const path = `${currentUser.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+          const { error } = await supabase.storage.from(BUCKET).upload(path, file, { cacheControl: "3600", upsert: false });
+          if (error) throw error;
+          const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(path);
+          imageUrls.push(urlData.publicUrl);
+          haptic("success");
+          toast("Photo uploaded ✓", "success");
+        } catch (err) {
+          haptic("error");
+          toast("Upload failed: " + err.message, "error");
+        } finally {
+          spinner.remove();
+          renderPhotoGrid();
+        }
+      }
+    });
+
+    // ── INIT ──
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      // Fetch fresh user_metadata from server so theme preference is always current
+      supabase.auth.getUser().then(({ data: { user: freshUser } }) => {
+        syncThemeFromUser(freshUser?.user_metadata);
+      });
+      if (!session) { window.location.href = "login.html"; return; }
+      currentUser = session.user;
+
+      const params  = new URLSearchParams(window.location.search);
+      const itemId  = params.get("id");
+      const from    = params.get("from"); // "collection" | "item" — controls back link
+      if (from === "item") {
+        document.getElementById("back-link").href = `item.html?id=${itemId}`;
+        document.getElementById("back-link").textContent = "← Item";
+      }
+
+      if (!itemId) { document.getElementById("state-loading").style.display = "none"; document.getElementById("state-error").style.display = "block"; return; }
+
+      // Fetch item
+      const { data: item, error } = await supabase
+        .from("items")
+        .select("*")
+        .eq("id", itemId)
+        .eq("user_id", currentUser.id)
+        .is("deleted_at", null)
+        .single();
+
+      document.getElementById("state-loading").style.display = "none";
+
+      if (error || !item) { document.getElementById("state-error").style.display = "block"; return; }
+
+      currentItem = item;
+      const isOwner = true; // page already enforces owner-only access via query
+      imageUrls   = IMG_COLS.map(c => item[c]).filter(Boolean);
+
+      // Populate page subtitle
+      document.getElementById("page-sub").textContent = `ID #${item.id}`;
+
+      // Show page
+      document.getElementById("edit-page").style.display = "block";
+
+      // Render photos
+      renderPhotoGrid();
+
+      // Load chips
+      const catChips = await loadChips("categories", "category-chips", id => { catId = id; });
+      const matChips = await loadChips("materials",  "material-chips", id => { matId = id; });
+      catChips.setSelected(item.category_id); catId = item.category_id;
+      matChips.setSelected(item.material_id); matId = item.material_id;
+
+      // Populate metadata fields
+      document.getElementById("edit-variant").value  = item.variant      || "";
+      document.getElementById("edit-size").value     = item.size         || "";
+      document.getElementById("edit-msrp").value     = item.msrp         || "";
+      document.getElementById("edit-born").value     = item.born_on_date || "";
+
+      // Wire date calendar button + today shortcut
+      const calBtn   = document.getElementById("edit-born-cal-btn");
+      const todayBtn = document.getElementById("edit-born-today-btn");
+      const bornInput = document.getElementById("edit-born");
+
+      calBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (typeof bornInput.showPicker === "function") {
+          try { bornInput.showPicker(); return; } catch {}
+        }
+        bornInput.focus();
+      });
+
+      todayBtn.addEventListener("click", () => {
+        const now  = new Date();
+        const yyyy = now.getFullYear();
+        const mm   = String(now.getMonth() + 1).padStart(2, "0");
+        const dd   = String(now.getDate()).padStart(2, "0");
+        bornInput.value = `${yyyy}-${mm}-${dd}`;
+        if ("vibrate" in navigator) navigator.vibrate([10]);
+      });
+
+      // Wire Add Similar button (only visible to owner)
+      if (isOwner || item.user_id === currentUser.id) {
+        const formMap = { 1: "form-atwood.html", 2: "form-horton.html", 3: "form-steelflame.html", 4: "form-zachwoods.html" };
+        const targetForm = formMap[item.maker_id];
+        if (targetForm) {
+          const p = new URLSearchParams({ prefill: "1" });
+          if (item.category_id)  p.set("category_id",  item.category_id);
+          if (item.material_id)  p.set("material_id",   item.material_id);
+          if (item.variant && item.variant !== "none") p.set("variant", item.variant);
+          if (item.size)         p.set("size",          item.size);
+          if (item.msrp)         p.set("msrp",          item.msrp);
+          if (item.extra)        p.set("extra",         item.extra);
+          if (item.is_private)   p.set("is_private",    "true");
+          const addSimilarBtn = document.getElementById("add-similar-btn");
+          addSimilarBtn.href = `${targetForm}?${p.toString()}`;
+          addSimilarBtn.style.display = "inline-flex";
+        }
+      }
+      document.getElementById("edit-extra").value    = item.extra        || "";
+      document.getElementById("edit-comments").value = item.comments     || "";
+      document.getElementById("edit-private").checked = item.is_private  || false;
+
+      // ── SAVE ──
+      document.getElementById("save-btn").addEventListener("click", async () => {
+        const btn = document.getElementById("save-btn");
+        btn.disabled = true;
+        toast("Saving…", "info");
+
+        // Pack imageUrls back into image_url1..10
+        const imageFields = {};
+        IMG_COLS.forEach((col, i) => { imageFields[col] = imageUrls[i] ?? null; });
+
+        const updates = {
+          category_id:  catId,
+          material_id:  matId,
+          variant:      document.getElementById("edit-variant").value.trim()  || null,
+          size:         document.getElementById("edit-size").value            || null,
+          msrp:         document.getElementById("edit-msrp").value            || null,
+          born_on_date: document.getElementById("edit-born").value            || null,
+          extra:        document.getElementById("edit-extra").value.trim()    || null,
+          comments:     document.getElementById("edit-comments").value.trim() || null,
+          is_private:   document.getElementById("edit-private").checked,
+          ...imageFields,
+        };
+
+        const { error } = await supabase.from("items").update(updates).eq("id", itemId);
+
+        if (error) {
+          toast("Save failed: " + error.message, "error");
+          haptic("error");
+          btn.disabled = false;
+        } else {
+          toast("Changes saved ✓", "success");
+          haptic("success");
+          btn.disabled = false;
+        }
+      });
+
+      // ── SOFT DELETE ──
+      document.getElementById("delete-btn").addEventListener("click", async () => {
+        const ok = await confirm(
+          "Delete Item",
+          "This item will be hidden from your collection and all public feeds. It won't be permanently erased — contact support if you ever need it recovered.",
+          "Delete Item",
+          true
+        );
+        if (!ok) return;
+
+        const { error } = await supabase
+          .from("items")
+          .update({ deleted_at: new Date().toISOString() })
+          .eq("id", itemId);
+
+        if (error) {
+          toast("Delete failed: " + error.message, "error");
+          haptic("error");
+        } else {
+          haptic("success");
+          // Redirect to collection after short delay
+          toast("Item deleted", "info");
+          setTimeout(() => { window.location.href = "my-items.html"; }, 1200);
+        }
+      });
+
+    })();
+  </script>
+
+</body>
+</html>

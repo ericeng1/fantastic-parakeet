@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Lato:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Item Entry Form</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- LEGACY FORM — Hidden from normal user flow. Accessible via direct URL only. -->
+  <div style="background:rgba(200,150,74,0.12);border-bottom:1px solid rgba(200,150,74,0.3);padding:12px 20px;text-align:center;font-size:13px;color:#c8964a;font-family:Lato,sans-serif;position:sticky;top:0;z-index:999;">
+    ⚠️ Legacy form — <a href="dashboard.html" style="color:#c8964a;font-weight:700;text-decoration:underline;">Return to Dashboard</a>
+  </div>
+
+  <!-- ⚠️ DEPRECATED NOTICE ── this form is kept for reference only -->
+  <div style="background:#2a1f0e;border-bottom:2px solid #c8964a;padding:12px 20px;font-family:'Lato',sans-serif;font-size:13px;color:#c8964a;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+    <span>⚠️ This form is deprecated. Use the new brand-focused flow instead.</span>
+    <a href="dashboard.html" style="color:#c8964a;font-weight:700;text-decoration:underline;white-space:nowrap;">Go to Dashboard →</a>
+  </div>
+
+
+  <!-- DEPRECATION NOTICE -->
+  <div style="background:#2a1f0a;border-bottom:1px solid #5a3e1a;padding:10px 20px;font-family:'Lato',sans-serif;font-size:12px;color:#c8964a;text-align:center;letter-spacing:0.04em;">
+    ⚠ This is the legacy form. <a href="dashboard.html" style="color:#e8b46a;text-decoration:underline;">Use the new brand forms →</a>
+  </div>
+
+  <!-- User bar: shown once logged in -->
+  <div id="user-bar" class="user-bar" style="display:none;">
+    <span id="user-email" class="user-email"></span>
+    <a href="my-items.html" class="my-collection-link">My Collection →</a>
+    <button id="signout-btn" class="signout-btn">Sign Out</button>
+  </div>
+
+  <div class="form-container">
+    <h1>Add New Item</h1>
+
+    <form id="itemForm">
+
+      <!-- Brands -->
+      <div class="form-group">
+        <label for="maker">Brand</label>
+        <select id="maker"></select>
+      </div>
+
+      <div class="form-group">
+        <label for="category">Category</label>
+        <div class="dropdown-wrapper">
+          <select id="category"></select>
+          <button type="button" class="add-btn" id="add-category-btn">+ Add Category</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="material">Material</label>
+        <div class="dropdown-wrapper">
+          <select id="material"></select>
+          <button type="button" class="add-btn" id="add-material-btn">+ Add Material</button>
+        </div>
+      </div>
+
+      <!-- Other Inputs -->
+      <div class="form-group">
+        <label for="born_on_date">Date Acquired</label>
+        <input type="date" id="born_on_date" />
+      </div>
+
+      <div class="form-group">
+        <label for="msrp">MSRP</label>
+        <input type="number" id="msrp" step="0.01" />
+      </div>
+
+      <div class="form-group">
+        <label for="size">Size</label>
+        <input type="number" id="size" step="0.01" />
+      </div>
+
+      <div class="form-group">
+        <label for="variant">Variant</label>
+        <input type="text" id="variant" />
+      </div>
+
+      <div class="form-group">
+        <label for="extra">Extra</label>
+        <input type="text" id="extra" />
+      </div>
+
+      <div class="form-group">
+        <label for="comments">Comments</label>
+        <textarea id="comments"></textarea>
+      </div>
+
+
+      <!-- Image Upload -->
+      <div class="form-group">
+        <label>Photos <span style="font-weight:300;color:#888;">(up to 10)</span></label>
+        <input type="file" id="images" accept="image/*" multiple />
+        <div id="preview-strip" class="preview-strip"></div>
+      </div>
+
+      <!-- Privacy Toggle -->
+      <div class="form-group privacy-group">
+        <label class="privacy-label">
+          <input type="checkbox" id="is_private" />
+          <span class="privacy-text">
+            <strong>Private entry</strong> — only visible to you
+          </span>
+        </label>
+      </div>
+
+      <button type="submit" class="submit-btn">Save Item</button>
+
+      <p id="status" class="status"></p>
+
+    </form>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

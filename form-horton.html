@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <script>
+    (function() {
+      var t = localStorage.getItem("showoffy_theme") || "dark";
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Jeremy Horton Knives — Add Item</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Lato:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="form-brand.css" />
+</head>
+<body>
+
+  <header class="topbar">
+    <a href="dashboard.html" class="back-btn">← Brands</a>
+    <a href="dashboard.html" class="logo">Showoffy</a>
+    <div class="topbar-right">
+      <a href="my-items.html" class="nav-link">My Items</a>
+      <button class="nav-link" id="signout-btn">Sign Out</button>
+    </div>
+  </header>
+
+  <!-- Brand Hero -->
+  <div class="brand-hero">
+    <div class="brand-hero-eyebrow">Adding item for</div>
+    <div class="brand-hero-name">Jeremy Horton<br>Knives</div>
+    <div class="brand-hero-maker">Jeremy Horton</div>
+  </div>
+
+  <!-- Step Indicator -->
+  <div class="step-indicator">
+    <div class="step-dot active" id="dot-1"></div>
+    <div class="step-dot" id="dot-2"></div>
+    <span class="step-label" id="step-label-text">Step 1 of 2</span>
+  </div>
+
+  <!-- Form Wrap -->
+  <div class="form-wrap">
+
+    <!-- ── STEP 1: Essentials ── -->
+    <div class="step-panel active" id="step-1">
+
+      <div class="section-heading">The essentials</div>
+      <p class="section-sub">Category, material, and photos — that's all we need.</p>
+
+
+      <!-- Category -->
+      <div class="field-group">
+        <label class="field-label">Category <span class="required">*</span></label>
+        <div class="chip-group" id="category-chips"></div>
+      </div>
+
+      <!-- Material -->
+      <div class="field-group">
+        <label class="field-label">Material <span class="required">*</span></label>
+        <div class="chip-group" id="material-chips"></div>
+      </div>
+
+      <!-- Photos -->
+      <div class="field-group">
+        <label class="field-label">Photos</label>
+        <div class="photo-zone" id="photo-zone">
+          <div class="photo-zone-icon">📷</div>
+          <div class="photo-zone-text">Tap to take or choose photos</div>
+          <div class="photo-zone-hint">Up to 10 photos · Uploads instantly</div>
+        </div>
+        <!-- Input is outside the zone so clicks don't bubble back up -->
+        <input type="file" id="photo-input" accept="image/*" multiple
+               style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;" />
+        <div class="thumb-strip" id="thumb-strip"></div>
+      </div>
+
+      <!-- Privacy + Add Similar -->
+      <div class="field-group">
+        <div class="privacy-actions">
+          <label class="privacy-row-inner" for="is-private">
+            <div class="privacy-info">
+              <div class="privacy-title">Private entry</div>
+              <div class="privacy-desc">Only visible to you</div>
+            </div>
+            <div class="toggle-wrap">
+              <input type="checkbox" id="is-private" />
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <button class="btn-primary" id="next-btn">Continue →</button>
+    </div>
+
+    <!-- ── STEP 2: Optional details ── -->
+    <div class="step-panel" id="step-2">
+
+      <div class="section-heading">Optional details</div>
+      <p class="section-sub">Skip anytime — you can add these later.</p>
+
+      <div class="field-group">
+        <label class="field-label" for="variant">Variant</label>
+        <input type="text" class="field-input" id="variant" placeholder="e.g. Full Flat, Hollow Ground…" />
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="size">Size (inches)</label>
+        <input type="number" class="field-input" id="size" step="0.01" placeholder="e.g. 2.75" inputmode="decimal" />
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="msrp">MSRP ($)</label>
+        <input type="number" class="field-input" id="msrp" step="0.01" placeholder="e.g. 145.00" inputmode="decimal" />
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="born-on">Date Acquired</label>
+        <div class="date-wrap">
+          <input type="date" class="field-input" id="born-on" />
+          <button type="button" class="date-cal-btn" id="born-on-cal-btn" title="Open calendar" aria-label="Open calendar">📅</button>
+        </div>
+        <button type="button" class="date-today-btn" id="born-on-today-btn">⊕ Use today's date</button>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="extra">Extra</label>
+        <input type="text" class="field-input" id="extra" placeholder="Any extra detail…" />
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="comments">Personal Notes</label>
+        <textarea class="field-textarea" id="comments" placeholder="Private notes about this piece…"></textarea>
+      </div>
+
+      <button class="btn-primary" id="save-btn">Save Item ✓</button>
+      <button class="btn-skip" id="save-skip-btn">Skip and save without details</button>
+      <button class="btn-secondary" id="back-btn">← Back to essentials</button>
+    </div>
+
+    <!-- ── SUCCESS STATE ── -->
+    <div class="success-state" id="success-state">
+      <div class="success-icon">✓</div>
+      <div class="success-title">Item Saved!</div>
+      <p class="success-sub">Your Horton piece has been logged.</p>
+      <div class="success-actions">
+        <button class="btn-primary" id="add-another-btn">Add Another</button>
+        <a href="my-items.html" class="btn-secondary">View My Collection</a>
+        <a href="dashboard.html" class="btn-secondary">Back to Dashboard</a>
+      </div>
+    </div>
+
+  </div><!-- /.form-wrap -->
+
+      <script type="module">
+    import { requireAuth, haptic, showToast,
+             initProgressiveUpload, saveItem, addNewLookup, loadChips,
+             initDatePicker, setToday, readPrefillParams,
+             CATEGORY_MATERIAL_DEFAULTS } from "./form-shared.js";
+    import { syncThemeFromUser } from "./theme.js";
+
+    const MAKER_ID = 2;
+    const BRAND_ID = 2;  // Jeremy Horton Knives
+
+    (async () => {
+      const user = await requireAuth();
+      if (!user) return;
+      syncThemeFromUser(user.user_metadata);
+
+      document.getElementById("signout-btn").addEventListener("click", async () => {
+        const { supabase } = await import("./supabaseClient.js");
+        await supabase.auth.signOut();
+        window.location.href = "login.html";
+      });
+
+      // ── Mutable state ──
+      let selectedCategoryId  = null;
+      let selectedMaterialId  = null;
+      let materialPickedByUser = false;
+
+      // Restore any previously uploaded photo URLs from localStorage
+      // (only URLs are persisted — no text fields, no chip selections)
+      const PHOTO_KEY = "photos_horton";
+      let uploadedUrls = (() => {
+        try { return JSON.parse(localStorage.getItem(PHOTO_KEY) || "[]"); }
+        catch { return []; }
+      })();
+
+      // ── Load chips dynamically from Supabase ──
+      // Categories: brand-scoped (only show categories linked to Horton via brand_categories)
+      const categoryChips = await loadChips({
+        table:       "categories",
+        containerId: "category-chips",
+        addChipId:   "add-category-chip",
+        brandId:     BRAND_ID,  // ← Pass BRAND_ID for curation
+        onSelect:    id => { selectedCategoryId = id; },
+      });
+
+      // Materials: global (not brand-scoped)
+      const materialChips = await loadChips({
+        table:       "materials",
+        containerId: "material-chips",
+        addChipId:   "add-material-chip",
+        onSelect:    id => {
+          selectedMaterialId   = id;
+          materialPickedByUser = true;
+        },
+      });
+
+      // ── Wire material default after BOTH chip groups are loaded ──
+      const catContainer = document.getElementById("category-chips");
+      catContainer.querySelectorAll(".chip:not(.chip-add)").forEach(chip => {
+        chip.addEventListener("click", () => {
+          if (materialPickedByUser) return;
+          const catId    = parseInt(chip.dataset.id);
+          const defaults = CATEGORY_MATERIAL_DEFAULTS[catId];
+          if (defaults?.length) {
+            materialChips.setSelected(defaults[0]);
+            selectedMaterialId = defaults[0];
+          }
+        });
+      });
+
+      // ── Add new category ──
+      categoryChips.getAddChip().addEventListener("click", async () => {
+        const result = await addNewLookup("categories", BRAND_ID);  // ← Pass BRAND_ID
+        if (!result) return;
+        categoryChips.addAndSelect(result.id, result.name);
+        selectedCategoryId = result.id;
+      });
+
+      // ── Add new material ──
+      materialChips.getAddChip().addEventListener("click", async () => {
+        const result = await addNewLookup("materials");  // Materials are global
+        if (!result) return;
+        materialChips.addAndSelect(result.id, result.name);
+        selectedMaterialId = result.id;
+      });
+
+      // ── Progressive photo upload ──
+      const photoInput = document.getElementById("photo-input");
+      const thumbStrip = document.getElementById("thumb-strip");
+      const photoZone  = document.getElementById("photo-zone");
+
+      photoZone.addEventListener("click", (e) => {
+        if (e.target === photoInput) return;
+        photoInput.click();
+      });
+
+      const uploader = initProgressiveUpload({
+        inputEl:      photoInput,
+        previewEl:    thumbStrip,
+        userId:       user.id,
+        onUrlsChange: (urls) => {
+          uploadedUrls = urls;
+          try { localStorage.setItem(PHOTO_KEY, JSON.stringify(urls)); } catch {}
+        },
+      });
+
+      // Restore previously uploaded photos into the thumb strip
+      if (uploadedUrls.length) uploader.setUrls(uploadedUrls);
+
+      // ── Date picker ──
+      initDatePicker("born-on", "born-on-cal-btn");
+      document.getElementById("born-on-today-btn").addEventListener("click", () => {
+        setToday("born-on");
+        haptic("light");
+      });
+
+      // ── Prefill from "Add Similar" URL params ──
+      const prefill = readPrefillParams();
+      if (prefill) {
+        if (prefill.category_id) { categoryChips.setSelected(prefill.category_id); selectedCategoryId = prefill.category_id; }
+        if (prefill.material_id) { materialChips.setSelected(prefill.material_id); selectedMaterialId = prefill.material_id; materialPickedByUser = true; }
+        if (prefill.variant)     document.getElementById("variant").value = prefill.variant;
+        if (prefill.size)        document.getElementById("size").value    = prefill.size;
+        if (prefill.msrp)        document.getElementById("msrp").value    = prefill.msrp;
+        if (prefill.extra)       document.getElementById("extra").value   = prefill.extra;
+        if (prefill.is_private)  document.getElementById("is-private").checked = true;
+        showToast("Fields carried over from similar item", "info");
+        haptic("light");
+      }
+
+      // ── Step navigation ──
+      function goToStep(n) {
+        document.querySelectorAll(".step-panel").forEach(p => p.classList.remove("active"));
+        document.getElementById(`step-${n}`).classList.add("active");
+        document.querySelectorAll(".step-dot").forEach((d, i) => {
+          d.classList.remove("active", "done");
+          if (i + 1 < n) d.classList.add("done");
+          if (i + 1 === n) d.classList.add("active");
+        });
+        document.getElementById("step-label-text").textContent = `Step ${n} of 2`;
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      document.getElementById("next-btn").addEventListener("click", () => {
+        if (!selectedCategoryId) { haptic("error"); showToast("Please select a category", "error"); return; }
+        if (!selectedMaterialId) { haptic("error"); showToast("Please select a material", "error"); return; }
+        haptic("medium");
+        goToStep(2);
+      });
+
+      document.getElementById("back-btn").addEventListener("click", () => goToStep(1));
+
+      // ── Save ──
+      async function doSave(withStep2) {
+        const btnId   = withStep2 ? "save-btn" : "save-skip-btn";
+        const saveBtn = document.getElementById(btnId);
+        saveBtn.disabled = true;
+
+        const step2 = withStep2 ? {
+          variant:      document.getElementById("variant").value.trim()  || null,
+          size:         document.getElementById("size").value            || null,
+          msrp:         document.getElementById("msrp").value            || null,
+          born_on_date: document.getElementById("born-on").value         || null,
+          extra:        document.getElementById("extra").value.trim()    || null,
+          comments:     document.getElementById("comments").value.trim() || null,
+        } : null;
+
+        try {
+          showToast("Saving…", "info");
+          await saveItem({
+            makerId:   MAKER_ID,
+            userId:    user.id,
+            imageUrls: uploadedUrls,
+            step1:     { category_id: selectedCategoryId, material_id: selectedMaterialId, is_private: document.getElementById("is-private").checked },
+            step2,
+          });
+
+          haptic("success");
+          try { localStorage.removeItem(PHOTO_KEY); } catch {}
+          document.querySelector(".step-indicator").style.display = "none";
+          document.querySelector(".brand-hero").style.display     = "none";
+          document.getElementById("step-1").classList.remove("active");
+          document.getElementById("step-2").classList.remove("active");
+          document.getElementById("success-state").classList.add("visible");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+
+        } catch (err) {
+          haptic("error");
+          showToast("Save failed: " + err.message, "error");
+          saveBtn.disabled = false;
+        }
+      }
+
+      document.getElementById("save-btn").addEventListener("click",       () => doSave(true));
+      document.getElementById("save-skip-btn").addEventListener("click",  () => doSave(false));
+      document.getElementById("add-another-btn").addEventListener("click", () => window.location.reload());
+
+    })();
+  </script>
+
+</body>
+</html>

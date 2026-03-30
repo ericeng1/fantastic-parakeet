@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <script>
+    (function() {
+      var t = localStorage.getItem("showoffy_theme") || "dark";
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Maker — Showoffy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Lato:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --font-primary: 'Bebas Neue', sans-serif;
+      --font-body:    'Lato', sans-serif;
+      --font-accent:  'Cormorant Garamond', serif;
+      --bg:       #0f0f10;
+      --surface:  #18181b;
+      --surface2: #202024;
+      --border:   #2a2a2e;
+      --text:     #f0ede8;
+      --muted:    #9a9896;
+      --accent:   #c8964a;
+      --accent2:  #8dbbd1;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-body);
+      font-weight: 300;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .topbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 40px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .topbar-left { display: flex; align-items: center; gap: 24px; }
+
+    .brand {
+      font-family: var(--font-primary);
+      font-size: 22px;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .back-link {
+      font-size: 12px;
+      color: var(--muted);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      letter-spacing: 0.04em;
+      transition: color 0.2s;
+    }
+
+    .back-link:hover { color: var(--text); }
+
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+
+    .topbar-user {
+      font-size: 12px;
+      color: var(--muted);
+      max-width: 160px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .btn-flat {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 5px 12px;
+      font-family: var(--font-body);
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color 0.2s, color 0.2s;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .btn-flat:hover { border-color: var(--accent); color: var(--accent); }
+
+    .maker-header {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 52px 40px 40px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .maker-eyebrow {
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      margin-bottom: 10px;
+    }
+
+    .maker-name {
+      font-family: var(--font-primary);
+      font-size: clamp(40px, 6vw, 68px);
+      letter-spacing: 0.05em;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .maker-person {
+      font-family: var(--font-accent);
+      font-style: italic;
+      font-size: 18px;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    .maker-stats { display: flex; gap: 28px; }
+
+    .maker-stat { display: flex; flex-direction: column; gap: 2px; }
+
+    .maker-stat-num {
+      font-family: var(--font-primary);
+      font-size: 26px;
+      letter-spacing: 0.06em;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .maker-stat-label {
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .feed-wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 40px 80px;
+    }
+
+    .feed-item {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      border-bottom: 1px solid var(--border);
+      text-decoration: none;
+      color: inherit;
+      transition: background 0.15s;
+      animation: slideIn 0.35s ease both;
+    }
+
+    .feed-item:hover { background: rgba(255,255,255,0.02); }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .feed-img-wrap {
+      width: 260px;
+      aspect-ratio: 4/3;
+      overflow: hidden;
+      background: var(--surface2);
+      flex-shrink: 0;
+    }
+
+    .feed-img-wrap img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+
+    .feed-item:hover .feed-img-wrap img { transform: scale(1.04); }
+
+    .feed-img-placeholder {
+      width: 100%; height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--border);
+      font-size: 28px;
+    }
+
+    .feed-meta {
+      padding: 28px 32px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 14px;
+    }
+
+    .feed-date {
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .meta-rows { display: flex; flex-direction: column; gap: 12px; }
+    .meta-row  { display: flex; flex-direction: column; gap: 3px; }
+
+    .meta-row-label {
+      font-size: 9px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .meta-row-value {
+      font-family: var(--font-primary);
+      font-size: 18px;
+      letter-spacing: 0.04em;
+      color: var(--text);
+      line-height: 1.15;
+    }
+
+    .meta-row-value.empty {
+      font-family: var(--font-body);
+      font-style: italic;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .feed-item-gs {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      border-bottom: 1px solid var(--border);
+      color: inherit;
+      transition: background 0.15s;
+      cursor: pointer;
+      animation: slideIn 0.35s ease both;
+    }
+
+    .feed-item-gs:hover { background: rgba(255,255,255,0.02); }
+
+    .feed-gs-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      background: rgba(141,187,209,0.08);
+      border: 1px solid rgba(141,187,209,0.2);
+      border-radius: 4px;
+      padding: 3px 8px;
+      margin-bottom: 8px;
+      width: fit-content;
+    }
+
+    .feed-gs-items-label {
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+
+    .feed-section-divider {
+      padding: 32px 0 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .feed-section-label {
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .sentinel { height: 1px; margin-top: 40px; }
+
+    .feed-loader {
+      text-align: center;
+      padding: 28px;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: none;
+    }
+
+    .feed-loader.visible { display: block; }
+
+    .feed-end {
+      text-align: center;
+      padding: 40px 20px;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--border);
+      display: none;
+    }
+
+    .feed-end.visible { display: block; }
+
+    .state-page {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 80px 40px;
+      text-align: center;
+      color: var(--muted);
+      font-family: var(--font-accent);
+      font-style: italic;
+      font-size: 16px;
+      display: none;
+    }
+
+    .state-page.visible { display: block; }
+    .state-page a { color: var(--accent); text-decoration: none; font-style: normal; }
+    .state-page a:hover { text-decoration: underline; }
+
+    @media (max-width: 640px) {
+      .topbar { padding: 0 16px; }
+      .maker-header, .feed-wrap { padding-left: 16px; padding-right: 16px; }
+      .feed-item,
+      .feed-item-gs { grid-template-columns: 130px 1fr; }
+      .feed-img-wrap { width: 130px; }
+      .feed-meta { padding: 14px 16px; gap: 10px; }
+      .meta-row-value { font-size: 15px; }
+      .topbar-user { display: none; }
+    }
+
+    /* ── LIGHT THEME OVERRIDES ── */
+    [data-theme="light"] {
+      --bg:       #f4f1ec;
+      --surface:  #ffffff;
+      --surface2: #ebe8e2;
+      --border:   #d6d1c8;
+      --text:     #1c1a17;
+      --muted:    #7a7570;
+      --accent:   #b07d32;
+      --accent2:  #4a8ba8;
+      --danger:   #a03830;
+      --input-bg: #f4f1ec;
+    }
+
+    html { transition: background 0.25s; }
+    body { transition: background 0.25s, color 0.25s; }
+    .topbar { transition: background 0.25s, border-color 0.25s; }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <a href="home.html" class="brand">Showoffy</a>
+      <a href="my-items.html" class="back-link">← Collection</a>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-user" id="topbar-user"></span>
+      <a href="login.html"     class="btn-flat" id="signin-link"   style="display:none;">Sign In</a>
+      <a href="dashboard.html" class="btn-flat" id="add-item-link" style="display:none;">＋ Add Item</a>
+      <button                  class="btn-flat" id="signout-btn"   style="display:none;">Sign Out</button>
+    </div>
+  </header>
+
+  <div class="maker-header" id="maker-header" style="display:none;">
+    <div class="maker-eyebrow">Maker</div>
+    <div class="maker-name"   id="maker-name"></div>
+    <div class="maker-person" id="maker-person"></div>
+    <div class="maker-stats">
+      <div class="maker-stat">
+        <div class="maker-stat-num"   id="stat-count">—</div>
+        <div class="maker-stat-label">Public Items</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="state-page" id="state-error">
+    <p id="error-msg">Maker not found.</p>
+    <p style="margin-top:14px;"><a href="my-items.html">← Back to collection</a></p>
+  </div>
+
+  <div class="state-page" id="state-empty">
+    <p>No public items found for this maker yet.</p>
+    <p style="margin-top:14px;"><a id="empty-add-link" href="dashboard.html">Be the first to add one →</a></p>
+  </div>
+
+  <div class="feed-wrap">
+    <div id="feed"></div>
+    <div class="feed-loader" id="feed-loader">Loading…</div>
+    <div class="feed-end"    id="feed-end">— End of feed —</div>
+    <div class="sentinel"    id="sentinel"></div>
+
+    <div id="maker-form-cta" style="display:none;text-align:center;padding-top:14px;">
+      <p><a id="maker-form-link" href="dashboard.html"
+            style="color:var(--accent);text-decoration:none;font-style:normal;">
+      </a></p>
+    </div>
+  </div>
+
+  <script type="module">
+    import { supabase } from "./supabaseClient.js";
+    import "./theme.js";
+
+    (async () => {
+
+      const { data: { session } } = await supabase.auth.getSession();
+      const currentUserId = session?.user?.id ?? null;
+
+      if (session) {
+        const emailEl = document.getElementById("topbar-user");
+          // 🔹 Fetch username from profiles table
+  const { data: profile, error } = await supabase
+    .from("profiles")
+    .select("username")
+    .eq("id", session.user.id)
+    .single();
+
+  const username = profile?.username;
+        emailEl.innerHTML = `<a href="account.html" style="color:var(--muted);text-decoration:none;transition:color .2s;"
+          onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'"
+          >${username || session.user.email}</a>`;
+        document.getElementById("add-item-link").style.display    = "inline-flex";
+        document.getElementById("signout-btn").style.display      = "inline-flex";
+        document.getElementById("signout-btn").addEventListener("click", async () => {
+          await supabase.auth.signOut();
+          window.location.href = "login.html";
+        });
+      } else {
+        document.getElementById("signin-link").style.display = "inline-flex";
+      }
+
+      const params  = new URLSearchParams(window.location.search);
+      const makerId = params.get("id");
+
+      const showError = (msg = "Maker not found.") => {
+        document.getElementById("error-msg").textContent = msg;
+        document.getElementById("state-error").classList.add("visible");
+      };
+
+      if (!makerId) { showError("No maker ID provided."); return; }
+
+      const { data: maker, error: makerErr } = await supabase
+        .from("brands")
+        .select("id, company, first_name, last_name")
+        .eq("id", makerId)
+        .single();
+
+      if (makerErr || !maker) { showError("Maker not found."); return; }
+
+      document.title = `${maker.company} — Showoffy`;
+      document.getElementById("maker-name").textContent = maker.company;
+      const personName = [maker.first_name, maker.last_name].filter(Boolean).join(" ").trim();
+      const personEl   = document.getElementById("maker-person");
+      if (personName) { personEl.textContent = personName; }
+      else            { personEl.style.display = "none"; }
+      document.getElementById("maker-header").style.display = "block";
+
+      // ── Maker → form mapping ──
+      const FORM_MAP = {
+        1: "form-atwood.html",
+        2: "form-horton.html",
+        3: "form-steelflame.html",
+        4: "form-zachwoods.html",
+      };
+      const formUrl = FORM_MAP[parseInt(makerId)] || "dashboard.html";
+
+      // Point the empty-state link directly to this maker's form
+      document.getElementById("empty-add-link").href = formUrl;
+
+      // Wire the smart CTA link — text set later once we know if items exist
+      const ctaWrap = document.getElementById("maker-form-cta");
+      const ctaLink = document.getElementById("maker-form-link");
+      ctaLink.href = formUrl;
+
+
+      const PAGE_SIZE = 10;
+      let offset    = 0;
+      let loading   = false;
+      let exhausted = false;
+
+      async function fetchPage() {
+        if (loading || exhausted) return;
+        loading = true;
+        document.getElementById("feed-loader").classList.add("visible");
+
+        let query = supabase
+          .from("items")
+          .select(`id, variant, image_url1, image_url2, image_url3, created_at,
+                   categories(name), materials(name)`)
+          .eq("maker_id", makerId)
+          .eq("is_private", false)
+          .is("deleted_at", null)
+          .order("created_at", { ascending: false })
+          .range(offset, offset + PAGE_SIZE - 1);
+
+        // No exclusion filter — owner's own items appear in the maker feed
+
+        const { data: items, error } = await query;
+        document.getElementById("feed-loader").classList.remove("visible");
+        loading = false;
+
+        if (error) { showError("Error loading items: " + error.message); return; }
+
+        if (!items?.length) {
+          if (offset === 0) {
+            document.getElementById("state-empty").classList.add("visible");
+            document.getElementById("stat-count").textContent = "0";
+            // No CTA here — empty state already has the link
+          } else {
+            document.getElementById("feed-end").classList.add("visible");
+            // Items exist — show "Add another" CTA
+            ctaLink.textContent = "＋ Add another item for this maker";
+            ctaWrap.style.display = "block";
+          }
+          exhausted = true;
+          return;
+        }
+
+        if (offset === 0) {
+          const { count } = await supabase
+            .from("items")
+            .select("id", { count: "exact", head: true })
+            .eq("maker_id", makerId)
+            .eq("is_private", false)
+            .is("deleted_at", null);
+          document.getElementById("stat-count").textContent = count ?? items.length;
+        }
+
+        renderItems(items);
+        offset += items.length;
+        if (items.length < PAGE_SIZE) {
+          exhausted = true;
+          document.getElementById("feed-end").classList.add("visible");
+          ctaLink.textContent = "＋ Add another item for this maker";
+          ctaWrap.style.display = "block";
+        }
+      }
+
+      function pickImage(item) {
+        const c = [item.image_url1, item.image_url2, item.image_url3].filter(Boolean);
+        return c.length ? c[Math.floor(Math.random() * c.length)] : null;
+      }
+
+      function formatDate(iso) {
+        if (!iso) return "";
+        return new Date(iso).toLocaleDateString("en-US", { year:"numeric", month:"long", day:"numeric" });
+      }
+
+      function renderItems(items) {
+        const feed = document.getElementById("feed");
+        items.forEach((item, i) => {
+          const imgUrl   = pickImage(item);
+          const material = item.materials?.name || null;
+          const category = item.categories?.name || null;
+          const variant  = (item.variant && item.variant !== "none") ? item.variant : null;
+
+          const metaRow = (label, value) => `
+            <div class="meta-row">
+              <div class="meta-row-label">${label}</div>
+              <div class="meta-row-value${value ? "" : " empty"}">${value || "—"}</div>
+            </div>`;
+
+          const el = document.createElement("a");
+          el.href      = `item.html?id=${item.id}`;
+          el.className = "feed-item";
+          el.style.animationDelay = `${i * 0.04}s`;
+          el.innerHTML = `
+            <div class="feed-img-wrap">
+              ${imgUrl
+                ? `<img src="${imgUrl}" alt="" loading="lazy"
+                    onerror="this.parentElement.innerHTML='<div class=feed-img-placeholder>◻</div>'" />`
+                : `<div class="feed-img-placeholder">◻</div>`}
+            </div>
+            <div class="feed-meta">
+              <div class="feed-date">${formatDate(item.created_at)}</div>
+              <div class="meta-rows">
+                ${metaRow("Material", material)}
+                ${metaRow("Category", category)}
+                ${metaRow("Variant",  variant)}
+              </div>
+            </div>`;
+          feed.appendChild(el);
+        });
+      }
+
+      async function loadGroupShots() {
+        const { data: makerItems } = await supabase
+          .from("items").select("id")
+          .eq("maker_id", makerId).eq("is_private", false).is("deleted_at", null);
+
+        if (!makerItems?.length) return;
+        const makerItemIds = makerItems.map(i => i.id);
+
+        const { data: links } = await supabase
+          .from("group_shot_items").select("group_shot_id, item_id")
+          .in("item_id", makerItemIds);
+
+        if (!links?.length) return;
+
+        const gsIds = [...new Set(links.map(l => l.group_shot_id))];
+        const { data: shots } = await supabase
+          .from("group_shots").select("id, url, created_at")
+          .in("id", gsIds).order("created_at", { ascending: false });
+
+        if (!shots?.length) return;
+
+        const feed = document.getElementById("feed");
+
+        const divider = document.createElement("div");
+        divider.className = "feed-section-divider";
+        divider.innerHTML = `<div class="feed-section-label">Group Shots</div>`;
+        feed.appendChild(divider);
+
+        shots.forEach(shot => {
+          const taggedCount = links.filter(
+            l => l.group_shot_id === shot.id && makerItemIds.includes(l.item_id)
+          ).length;
+
+          const el = document.createElement("div");
+          el.className = "feed-item-gs";
+          el.addEventListener("click", () => {
+            window.location.href = `group-shot.html?id=${shot.id}&maker=${makerId}`;
+          });
+          el.innerHTML = `
+            <div class="feed-img-wrap">
+              <img src="${shot.url}" alt="" loading="lazy"
+                onerror="this.parentElement.innerHTML='<div class=feed-img-placeholder>◻</div>'" />
+            </div>
+            <div class="feed-meta">
+              <div class="feed-gs-badge">◎ Group Shot</div>
+              <div class="feed-date">${formatDate(shot.created_at)}</div>
+              <div class="feed-gs-items-label">${taggedCount} item${taggedCount !== 1 ? "s" : ""} from this maker</div>
+            </div>`;
+          feed.appendChild(el);
+        });
+      }
+
+      await loadGroupShots();
+
+      const sentinel = document.getElementById("sentinel");
+      const observer = new IntersectionObserver(
+        entries => { if (entries[0].isIntersecting) fetchPage(); },
+        { rootMargin: "200px" }
+      );
+      observer.observe(sentinel);
+      await fetchPage();
+
+      const check = setInterval(() => {
+        if (exhausted) { observer.disconnect(); clearInterval(check); }
+      }, 500);
+
+    })();
+  </script>
+
+</body>
+</html>

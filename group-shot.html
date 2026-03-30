@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <script>
+    (function() {
+      var t = localStorage.getItem("showoffy_theme") || "dark";
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Group Shot — Showoffy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Lato:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --font-primary: 'Bebas Neue', sans-serif;
+      --font-body:    'Lato', sans-serif;
+      --font-accent:  'Cormorant Garamond', serif;
+      --bg:       #0e0e0f;
+      --surface:  #161618;
+      --surface2: #1e1e21;
+      --border:   #2b2b2f;
+      --text:     #ede9e2;
+      --muted:    #9a9896;
+      --accent:   #c8964a;
+      --accent2:  #8dbbd1;
+      --danger:   #b85450;
+      --success:  #5a9e6f;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-body);
+      font-weight: 300;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 40px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      position: sticky;
+      top: 0;
+      z-index: 200;
+    }
+
+    .topbar-left { display: flex; align-items: center; gap: 24px; }
+
+    .brand {
+      font-family: var(--font-primary);
+      font-size: 22px;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .back-link {
+      font-size: 12px;
+      color: var(--muted);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      letter-spacing: 0.04em;
+      transition: color 0.2s;
+    }
+
+    .back-link:hover { color: var(--text); }
+
+    .topbar-right { display: flex; align-items: center; gap: 16px; }
+    .topbar-email  { font-size: 12px; color: var(--muted); }
+
+    .btn-small {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 5px 12px;
+      font-family: var(--font-body);
+      font-size: 12px;
+      color: var(--muted);
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color 0.2s, color 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .btn-small:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── STATE ── */
+    .state-page {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+      gap: 16px;
+      color: var(--muted);
+      font-size: 15px;
+      text-align: center;
+      padding: 40px;
+    }
+
+    .state-page .big { font-size: 48px; }
+
+    /* ── MAIN LAYOUT ── */
+    .gs-page {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 56px 40px 80px;
+      display: none;
+      animation: fadeIn 0.4s ease both;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Two-column: photo left, meta right — mirrors item.html */
+    .gs-top {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 56px;
+      align-items: start;
+      margin-bottom: 56px;
+    }
+
+    /* ── PHOTO ── */
+    .photo-col { display: flex; flex-direction: column; gap: 14px; }
+
+    .photo-main {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      aspect-ratio: 4/3;
+      position: relative;
+    }
+
+    .photo-main img {
+      width: 100%; height: 100%;
+      object-fit: contain;
+      display: block;
+      transition: transform 0.3s ease;
+    }
+
+    /* Navigation arrows */
+    .nav-arrows {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      font-family: var(--font-body);
+      font-size: 12px;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; border-color: var(--border); color: var(--muted); }
+
+    .nav-counter {
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+
+    /* ── META PANEL ── */
+    .meta-panel { display: flex; flex-direction: column; gap: 0; }
+
+    .meta-eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      margin-bottom: 10px;
+      font-family: var(--font-body);
+    }
+
+    .meta-title {
+      font-family: var(--font-primary);
+      font-size: clamp(32px, 4vw, 48px);
+      letter-spacing: 0.04em;
+      line-height: 1.05;
+      margin-bottom: 6px;
+    }
+
+    .meta-date {
+      font-family: var(--font-accent);
+      font-size: 16px;
+      font-style: italic;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    /* Owner badge */
+    .owner-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      font-family: var(--font-body);
+      margin-bottom: 24px;
+      width: fit-content;
+      background: rgba(141,187,209,0.08);
+      border: 1px solid rgba(141,187,209,0.2);
+      color: var(--accent2);
+    }
+
+    /* ── TAGGED ITEMS ── */
+    .tagged-section-title {
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+      font-family: var(--font-body);
+    }
+
+    .tagged-items-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .tagged-item-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .tagged-item-card:hover { border-color: #444; }
+
+    .tagged-item-thumb {
+      width: 52px;
+      height: 52px;
+      border-radius: 6px;
+      overflow: hidden;
+      background: var(--surface2);
+      flex-shrink: 0;
+    }
+
+    .tagged-item-thumb img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .tagged-item-thumb .no-img {
+      width: 100%; height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--border);
+      font-size: 18px;
+    }
+
+    .tagged-item-info { flex: 1; min-width: 0; }
+
+    .tagged-item-brand {
+      font-family: var(--font-primary);
+      font-size: 15px;
+      letter-spacing: 0.04em;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tagged-item-meta {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      margin-top: 2px;
+    }
+
+    .tagged-item-arrow { color: var(--muted); font-size: 14px; flex-shrink: 0; }
+
+    .tagged-empty {
+      font-family: var(--font-accent);
+      font-style: italic;
+      font-size: 14px;
+      color: var(--muted);
+      padding: 12px 0;
+    }
+
+    /* ── EDIT PANEL (owner only) ── */
+    .edit-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      display: none;
+    }
+
+    .edit-panel.open { display: block; animation: fadeIn 0.25s ease; }
+
+    .edit-panel-title {
+      font-family: var(--font-primary);
+      font-size: 18px;
+      letter-spacing: 0.06em;
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+
+    .edit-items-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+
+    .edit-chip {
+      padding: 8px 14px;
+      border-radius: 40px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--muted);
+      font-family: var(--font-body);
+      font-size: 12px;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .edit-chip.tagged {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(200,150,74,0.08);
+    }
+
+    .edit-panel-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+    .btn-save-tags {
+      padding: 10px 20px;
+      background: var(--accent);
+      color: #111;
+      border: none;
+      border-radius: 8px;
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .btn-save-tags:hover { opacity: 0.88; }
+    .btn-save-tags:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .btn-cancel-edit {
+      padding: 10px 16px;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      font-family: var(--font-body);
+      font-size: 13px;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .btn-cancel-edit:hover { border-color: var(--muted); color: var(--text); }
+
+    /* Delete button */
+    .btn-delete-gs {
+      margin-left: auto;
+      padding: 10px 16px;
+      background: none;
+      border: 1px solid rgba(184,84,80,0.35);
+      border-radius: 8px;
+      color: var(--danger);
+      font-family: var(--font-body);
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .btn-delete-gs:hover { background: rgba(184,84,80,0.1); border-color: var(--danger); }
+
+    /* ── TOAST ── */
+    #gs-toast {
+      position: fixed;
+      bottom: calc(24px + env(safe-area-inset-bottom));
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      padding: 12px 20px;
+      border-radius: 40px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      z-index: 9999;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.25s, transform 0.25s;
+      white-space: nowrap;
+      max-width: 90vw;
+    }
+
+    #gs-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── LIGHTBOX ── */
+    .lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.93);
+      z-index: 999;
+      align-items: center;
+      justify-content: center;
+      cursor: zoom-out;
+    }
+
+    .lightbox.open { display: flex; }
+
+    .lightbox img {
+      max-width: 92vw;
+      max-height: 92vh;
+      object-fit: contain;
+      border-radius: 6px;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.8);
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 20px; right: 24px;
+      font-size: 28px;
+      color: var(--muted);
+      cursor: pointer;
+      background: none;
+      border: none;
+      transition: color 0.15s;
+    }
+
+    .lightbox-close:hover { color: var(--text); }
+
+    /* ── CONFIRM DIALOG ── */
+    .dialog-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 10000;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: env(safe-area-inset-bottom);
+      animation: dlgIn 0.2s ease;
+    }
+
+    @keyframes dlgIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .dialog-sheet {
+      background: #1e1e22;
+      border: 1px solid var(--border);
+      border-radius: 20px 20px 0 0;
+      padding: 24px 24px 32px;
+      width: 100%;
+      max-width: 520px;
+      animation: sheetUp 0.25s cubic-bezier(0.34,1.1,0.64,1);
+    }
+
+    @keyframes sheetUp {
+      from { transform: translateY(40px); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+
+    .dialog-title {
+      font-family: var(--font-primary);
+      font-size: 22px;
+      letter-spacing: 0.06em;
+      margin-bottom: 8px;
+    }
+
+    .dialog-msg { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.5; }
+
+    .dialog-btns { display: flex; gap: 10px; }
+
+    .dialog-cancel {
+      flex: 1; padding: 14px; border-radius: 10px;
+      background: none; border: 1px solid var(--border);
+      color: var(--muted); font-family: var(--font-body);
+      font-size: 15px; cursor: pointer;
+    }
+
+    .dialog-confirm-danger {
+      flex: 2; padding: 14px; border-radius: 10px;
+      background: var(--danger); border: none;
+      color: #fff; font-family: var(--font-body);
+      font-size: 15px; font-weight: 700; cursor: pointer;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 780px) {
+      .topbar { padding: 12px 20px; }
+      .gs-page { padding: 28px 20px 60px; }
+      .gs-top  { grid-template-columns: 1fr; gap: 28px; }
+      .topbar-email { display: none; }
+    }
+
+    /* ── LIGHT THEME OVERRIDES ── */
+    [data-theme="light"] {
+      --bg:       #f4f1ec;
+      --surface:  #ffffff;
+      --surface2: #ebe8e2;
+      --border:   #d6d1c8;
+      --text:     #1c1a17;
+      --muted:    #7a7570;
+      --accent:   #b07d32;
+      --accent2:  #4a8ba8;
+      --danger:   #a03830;
+      --input-bg: #f4f1ec;
+    }
+
+    html { transition: background 0.25s; }
+    body { transition: background 0.25s, color 0.25s; }
+    .topbar { transition: background 0.25s, border-color 0.25s; }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <a id="back-link" href="my-items.html" class="back-link">← Back</a>
+      <a href="home.html" class="brand">Showoffy</a>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-email" id="user-email"></span>
+      <button class="btn-small" id="btn-edit-tags" style="display:none;">⋯ Edit</button>
+      <a href="dashboard.html" class="btn-small">＋ Add Item</a>
+      <button class="btn-small" id="signout-btn" style="display:none;">Sign Out</button>
+    </div>
+  </header>
+
+  <div class="state-page" id="state-loading">
+    <div class="big">⬡</div>
+    Loading…
+  </div>
+
+  <div class="state-page" id="state-error" style="display:none;">
+    <div class="big">✕</div>
+    <span id="error-msg">Group shot not found.</span>
+    <a href="my-items.html" style="color:var(--accent);text-decoration:none;margin-top:8px;">← Back to collection</a>
+  </div>
+
+  <div class="gs-page" id="gs-page">
+    <div class="gs-top">
+
+      <!-- Photo column -->
+      <div class="photo-col">
+        <div class="photo-main" id="photo-main">
+          <img id="photo-img" src="" alt="Group shot" />
+        </div>
+
+        <!-- Navigation arrows -->
+        <div class="nav-arrows">
+          <button class="nav-btn" id="btn-prev" disabled>← Prev</button>
+          <span class="nav-counter" id="nav-counter"></span>
+          <button class="nav-btn" id="btn-next" disabled>Next →</button>
+        </div>
+      </div>
+
+      <!-- Meta panel -->
+      <div class="meta-panel">
+        <div class="meta-eyebrow">Group Shot</div>
+        <div class="meta-title">In the Collection</div>
+        <div class="meta-date" id="meta-date"></div>
+        <div class="owner-badge" id="owner-badge" style="display:none;">◎ Your upload</div>
+
+        <div class="tagged-section-title">Items in this photo</div>
+        <div class="tagged-items-grid" id="tagged-items-grid"></div>
+
+        <!-- Edit panel — owner only -->
+        <div class="edit-panel" id="edit-panel">
+          <div class="edit-panel-title">Edit Tagged Items</div>
+          <div class="edit-items-list" id="edit-items-list"></div>
+          <div class="edit-panel-actions">
+            <button class="btn-save-tags" id="btn-save-tags">Save Changes</button>
+            <button class="btn-cancel-edit" id="btn-cancel-edit">Cancel</button>
+            <button class="btn-delete-gs" id="btn-delete-gs">⊘ Delete</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Lightbox for full-size zoom -->
+  <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+    <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+    <img id="lightbox-img" src="" alt="" />
+  </div>
+
+  <!-- Toast -->
+  <div id="gs-toast"></div>
+
+  <script type="module">
+    import { supabase } from "./supabaseClient.js";
+    import { syncThemeFromUser } from "./theme.js";
+
+    // ── HELPERS ──
+    let toastTimer = null;
+    function toast(msg, type = "info") {
+      const el = document.getElementById("gs-toast");
+      const themes = {
+        info:    { bg:"#1e2a36", color:"#8dbbd1", border:"1px solid rgba(141,187,209,0.25)" },
+        success: { bg:"#1a2e22", color:"#5fa87a", border:"1px solid rgba(95,168,122,0.3)"  },
+        error:   { bg:"#2e1a1a", color:"#c07070", border:"1px solid rgba(192,112,112,0.3)" },
+      };
+      const t = themes[type] || themes.info;
+      Object.assign(el.style, { background:t.bg, color:t.color, border:t.border });
+      el.textContent = msg;
+      el.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove("show"), type === "success" ? 3000 : 2200);
+    }
+
+    function haptic(s = "light") {
+      if ("vibrate" in navigator) navigator.vibrate({ light:[10], success:[10,60,10], error:[40,30,40] }[s] || [10]);
+    }
+
+    function confirmDialog(title, msg) {
+      return new Promise(resolve => {
+        const overlay = document.createElement("div");
+        overlay.className = "dialog-overlay";
+        overlay.innerHTML = `
+          <div class="dialog-sheet">
+            <div class="dialog-title">${title}</div>
+            <p class="dialog-msg">${msg}</p>
+            <div class="dialog-btns">
+              <button class="dialog-cancel">Cancel</button>
+              <button class="dialog-confirm-danger">Delete</button>
+            </div>
+          </div>`;
+        document.body.appendChild(overlay);
+        const close = v => {
+          overlay.style.opacity = "0";
+          overlay.style.transition = "opacity 0.18s";
+          setTimeout(() => overlay.remove(), 180);
+          resolve(v);
+        };
+        overlay.querySelector(".dialog-cancel").onclick        = () => close(false);
+        overlay.querySelector(".dialog-confirm-danger").onclick = () => close(true);
+        overlay.addEventListener("click", e => { if (e.target === overlay) close(false); });
+      });
+    }
+
+    window.openLightbox = (src) => {
+      document.getElementById("lightbox-img").src = src;
+      document.getElementById("lightbox").classList.add("open");
+      document.body.style.overflow = "hidden";
+    };
+
+    window.closeLightbox = () => {
+      document.getElementById("lightbox").classList.remove("open");
+      document.body.style.overflow = "";
+    };
+
+    document.addEventListener("keydown", e => { if (e.key === "Escape") closeLightbox(); });
+
+    // ── MAIN ──
+    (async () => {
+      // Auth (optional — page is public for public group shots)
+      const { data: { session } } = await supabase.auth.getSession();
+      // Fetch fresh user_metadata from server so theme preference is always current
+      supabase.auth.getUser().then(({ data: { user: freshUser } }) => {
+        syncThemeFromUser(freshUser?.user_metadata);
+      });
+      const currentUserId = session?.user?.id ?? null;
+      const isLoggedIn    = !!session;
+
+      if (isLoggedIn) {
+        const emailEl = document.getElementById("user-email");
+          // 🔹 Fetch username from profiles table
+  const { data: profile, error } = await supabase
+    .from("profiles")
+    .select("username")
+    .eq("id", session.user.id)
+    .single();
+
+  const username = profile?.username;
+        emailEl.innerHTML = `<a href="account.html" style="color:var(--muted);text-decoration:none;transition:color .2s;"
+          onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'"
+          >${username || session.user.email}</a>`;
+        document.getElementById("signout-btn").style.display = "inline-flex";
+        document.getElementById("signout-btn").addEventListener("click", async () => {
+          await supabase.auth.signOut();
+          window.location.href = "login.html";
+        });
+      } else {
+        document.getElementById("user-email").innerHTML =
+          '<a href="login.html" style="color:var(--accent2);text-decoration:none;font-size:12px;">Sign In</a>';
+      }
+
+      // ── Read params ──
+      const params      = new URLSearchParams(window.location.search);
+      const currentId   = params.get("id");     // current group shot UUID
+      const fromItemId  = params.get("item");   // context item id for navigation + back link
+      const fromMakerId = params.get("maker");  // context maker id for navigation
+
+      const showError = (msg) => {
+        document.getElementById("state-loading").style.display = "none";
+        document.getElementById("state-error").style.display   = "flex";
+        document.getElementById("error-msg").textContent = msg;
+      };
+
+      if (!currentId) { showError("No group shot specified."); return; }
+
+      // ── Set back link ──
+      if (fromItemId) {
+        document.getElementById("back-link").href        = `item.html?id=${fromItemId}`;
+        document.getElementById("back-link").textContent = "← Item";
+      } else if (fromMakerId) {
+        document.getElementById("back-link").href        = `maker.html?id=${fromMakerId}`;
+        document.getElementById("back-link").textContent = "← Maker";
+      }
+
+      // ── Build navigation sequence ──
+      // If coming from an item: all group shots that contain that item
+      // If coming from a maker: all group shots containing any item from that maker
+      // Otherwise: just this single shot
+      let navIds = [currentId];
+
+      if (fromItemId) {
+        const { data: links } = await supabase
+          .from("group_shot_items")
+          .select("group_shot_id")
+          .eq("item_id", fromItemId);
+
+        if (links?.length) {
+          // Order by created_at — fetch them to sort
+          const ids = links.map(l => l.group_shot_id);
+          const { data: ordered } = await supabase
+            .from("group_shots")
+            .select("id")
+            .in("id", ids)
+            .order("created_at", { ascending: false });
+          if (ordered?.length) navIds = ordered.map(s => s.id);
+        }
+      } else if (fromMakerId && isLoggedIn) {
+        // Owner's group shots that tag any item from this maker
+        const { data: makerItems } = await supabase
+          .from("items")
+          .select("id")
+          .eq("maker_id", fromMakerId)
+          .eq("user_id", currentUserId)
+          .is("deleted_at", null);
+
+        if (makerItems?.length) {
+          const makerItemIds = makerItems.map(i => i.id);
+          const { data: links } = await supabase
+            .from("group_shot_items")
+            .select("group_shot_id")
+            .in("item_id", makerItemIds);
+
+          if (links?.length) {
+            const ids = [...new Set(links.map(l => l.group_shot_id))];
+            const { data: ordered } = await supabase
+              .from("group_shots")
+              .select("id")
+              .in("id", ids)
+              .order("created_at", { ascending: false });
+            if (ordered?.length) navIds = ordered.map(s => s.id);
+          }
+        }
+      }
+
+      let navIndex = navIds.indexOf(currentId);
+      if (navIndex === -1) { navIds = [currentId]; navIndex = 0; }
+
+      // ── Load and render a group shot by id ──
+      let currentShot      = null;
+      let currentTaggedIds = new Set();
+
+      async function loadShot(id) {
+        const { data: shot, error } = await supabase
+          .from("group_shots")
+          .select("id, url, created_at, user_id")
+          .eq("id", id)
+          .single();
+
+        if (error || !shot) { showError("Group shot not found or you don't have access."); return; }
+
+        currentShot = shot;
+        const isOwner = currentUserId === shot.user_id;
+
+        document.title = "Group Shot — Showoffy";
+        document.getElementById("state-loading").style.display = "none";
+        document.getElementById("gs-page").style.display       = "block";
+
+        // Photo
+        const img = document.getElementById("photo-img");
+        img.src = shot.url;
+        img.onclick = () => openLightbox(shot.url);
+        document.getElementById("photo-main").style.cursor = "zoom-in";
+
+        // Date
+        document.getElementById("meta-date").textContent =
+          new Date(shot.created_at).toLocaleDateString("en-US", { year:"numeric", month:"long", day:"numeric" });
+
+        // Owner badge + edit button
+        document.getElementById("owner-badge").style.display  = isOwner ? "inline-flex" : "none";
+        document.getElementById("btn-edit-tags").style.display = isOwner ? "inline-flex" : "none";
+
+        // Close edit panel on navigation
+        document.getElementById("edit-panel").classList.remove("open");
+
+        // Tagged items
+        await loadTaggedItems(id, isOwner, currentUserId);
+
+        // Navigation counter + buttons
+        updateNav();
+      }
+
+      function updateNav() {
+        const total = navIds.length;
+        document.getElementById("nav-counter").textContent =
+          total > 1 ? `${navIndex + 1} / ${total}` : "";
+        document.getElementById("btn-prev").disabled = navIndex <= 0;
+        document.getElementById("btn-next").disabled = navIndex >= total - 1;
+      }
+
+      async function loadTaggedItems(shotId, isOwner, viewerId) {
+        const grid = document.getElementById("tagged-items-grid");
+        grid.innerHTML = '<div class="tagged-empty">Loading items…</div>';
+
+        const { data: links } = await supabase
+          .from("group_shot_items")
+          .select("item_id")
+          .eq("group_shot_id", shotId);
+
+        currentTaggedIds = new Set((links || []).map(l => l.item_id));
+
+        if (!links?.length) {
+          grid.innerHTML = '<div class="tagged-empty">No items tagged in this photo yet.</div>';
+          return;
+        }
+
+        const { data: items } = await supabase
+          .from("items")
+          .select("id, variant, image_url1, image_url2, image_url3, is_private, user_id, brands(company), categories(name)")
+          .in("id", links.map(l => l.item_id));
+
+        grid.innerHTML = "";
+
+        (items || [])
+          .filter(it => !it.is_private || it.user_id === viewerId) // hide private from non-owners
+          .forEach(it => {
+            const img  = it.image_url1 || it.image_url2 || it.image_url3;
+            const name = it.brands?.company || "Unknown Brand";
+            const sub  = [it.categories?.name, it.variant && it.variant !== "none" ? it.variant : null].filter(Boolean).join(" · ");
+
+            const card = document.createElement("a");
+            card.href      = `item.html?id=${it.id}`;
+            card.className = "tagged-item-card";
+
+            card.innerHTML = `
+              <div class="tagged-item-thumb">
+                ${img
+                  ? `<img src="${img}" alt="" loading="lazy" onerror="this.parentElement.innerHTML='<div class=no-img>◻</div>'" />`
+                  : `<div class="no-img">◻</div>`}
+              </div>
+              <div class="tagged-item-info">
+                <div class="tagged-item-brand">${name}</div>
+                <div class="tagged-item-meta">${sub}</div>
+              </div>
+              <div class="tagged-item-arrow">→</div>
+            `;
+            grid.appendChild(card);
+          });
+
+        if (!grid.children.length) {
+          grid.innerHTML = '<div class="tagged-empty">No visible items tagged.</div>';
+        }
+      }
+
+      // ── Navigation ──
+      document.getElementById("btn-prev").addEventListener("click", async () => {
+        if (navIndex <= 0) return;
+        navIndex--;
+        const newId = navIds[navIndex];
+        history.replaceState({}, "", `?id=${newId}${fromItemId ? `&item=${fromItemId}` : ""}${fromMakerId ? `&maker=${fromMakerId}` : ""}`);
+        await loadShot(newId);
+      });
+
+      document.getElementById("btn-next").addEventListener("click", async () => {
+        if (navIndex >= navIds.length - 1) return;
+        navIndex++;
+        const newId = navIds[navIndex];
+        history.replaceState({}, "", `?id=${newId}${fromItemId ? `&item=${fromItemId}` : ""}${fromMakerId ? `&maker=${fromMakerId}` : ""}`);
+        await loadShot(newId);
+      });
+
+      // ── Edit panel ──
+      document.getElementById("btn-edit-tags").addEventListener("click", async () => {
+        const panel = document.getElementById("edit-panel");
+        panel.classList.toggle("open");
+        if (panel.classList.contains("open")) await loadEditChips();
+      });
+
+      document.getElementById("btn-cancel-edit").addEventListener("click", () => {
+        document.getElementById("edit-panel").classList.remove("open");
+      });
+
+      async function loadEditChips() {
+        if (!currentUserId) return;
+        const list = document.getElementById("edit-items-list");
+        list.innerHTML = '<span style="font-size:13px;color:var(--muted)">Loading your items…</span>';
+
+        const { data: items } = await supabase
+          .from("items")
+          .select("id, variant, maker_id, brands(company), categories(name)")
+          .eq("user_id", currentUserId)
+          .is("deleted_at", null)
+          .order("created_at", { ascending: false });
+
+        list.innerHTML = "";
+        const workingSet = new Set(currentTaggedIds);
+
+        (items || []).forEach(it => {
+          const label = [it.brands?.company, it.categories?.name, it.variant && it.variant !== "none" ? it.variant : null].filter(Boolean).join(" · ");
+          const chip  = document.createElement("div");
+          chip.className   = "edit-chip" + (workingSet.has(it.id) ? " tagged" : "");
+          chip.textContent = label || `Item #${it.id}`;
+          chip.dataset.id  = it.id;
+          chip.addEventListener("click", () => {
+            if (workingSet.has(it.id)) { workingSet.delete(it.id); chip.classList.remove("tagged"); }
+            else                        { workingSet.add(it.id);    chip.classList.add("tagged");    }
+          });
+          list.appendChild(chip);
+        });
+
+        // Wire save with workingSet
+        const saveBtn = document.getElementById("btn-save-tags");
+        saveBtn.onclick = async () => {
+          if (!currentShot) return;
+          saveBtn.disabled = true;
+          saveBtn.textContent = "Saving…";
+
+          // Diff: remove deselected, add newly selected
+          const toRemove = [...currentTaggedIds].filter(id => !workingSet.has(id));
+          const toAdd    = [...workingSet].filter(id => !currentTaggedIds.has(id));
+
+          try {
+            if (toRemove.length) {
+              await supabase.from("group_shot_items").delete()
+                .eq("group_shot_id", currentShot.id)
+                .in("item_id", toRemove);
+            }
+            if (toAdd.length) {
+              await supabase.from("group_shot_items").insert(
+                toAdd.map(itemId => ({ group_shot_id: currentShot.id, item_id: itemId }))
+              );
+            }
+            currentTaggedIds = new Set(workingSet);
+            document.getElementById("edit-panel").classList.remove("open");
+            await loadTaggedItems(currentShot.id, true, currentUserId);
+            toast("Tags updated ✓", "success");
+            haptic("success");
+          } catch (err) {
+            toast("Save failed: " + err.message, "error");
+            haptic("error");
+          } finally {
+            saveBtn.disabled    = false;
+            saveBtn.textContent = "Save Changes";
+          }
+        };
+      }
+
+      // ── Delete ──
+      document.getElementById("btn-delete-gs").addEventListener("click", async () => {
+        const ok = await confirmDialog(
+          "Delete Group Shot",
+          "This group shot will be permanently removed. The individual item photos are not affected."
+        );
+        if (!ok) return;
+
+        const { error } = await supabase
+          .from("group_shots")
+          .delete()
+          .eq("id", currentShot.id);
+
+        if (error) { toast("Delete failed: " + error.message, "error"); return; }
+
+        haptic("success");
+        toast("Group shot deleted", "info");
+        setTimeout(() => {
+          if (fromItemId) window.location.href = `item.html?id=${fromItemId}`;
+          else window.location.href = "my-items.html";
+        }, 1000);
+      });
+
+      // ── Initial load ──
+      await loadShot(currentId);
+
+    })();
+  </script>
+
+</body>
+</html>
