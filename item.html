@@ -100,6 +100,27 @@
 
     .btn-small:hover { border-color: var(--accent); color: var(--accent); }
 
+    .btn-log {
+      padding: 7px 16px;
+      background: var(--accent);
+      color: #111;
+      border: none;
+      border-radius: 6px;
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity 0.2s;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .btn-log:hover { opacity: 0.87; }
+
     /* ── STATE PAGES ── */
     .state-page {
       display: flex;
@@ -748,7 +769,7 @@
     <div class="topbar-right">
       <span class="topbar-email" id="user-email"></span>
       <a href="dashboard.html" id="edit-btn" class="btn-small" style="display:none;">⋯ Edit</a>
-      <a href="dashboard.html" class="btn-small">＋ Add Item</a>
+      <a href="dashboard.html" class="btn-log">＋ Add Item</a>
       <button class="btn-small" id="signout-btn" style="display:none;">Sign Out</button>
     </div>
   </header>
