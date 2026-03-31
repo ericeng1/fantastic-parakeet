@@ -506,7 +506,7 @@ window.switchTab = function(tab) {
   window.handleOAuth = async function(provider) {
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
-      options: { redirectTo: window.location.origin + "/home.html" },
+      options: { redirectTo: window.location.origin + "/choose-username.html" },
     });
     if (error) showStatus(error.message, "error");
   };
