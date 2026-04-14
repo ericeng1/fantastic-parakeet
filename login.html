@@ -297,7 +297,7 @@
 <body>
 
 <div class="card">
-  <div class="wordmark">EDC Project</div>
+  <a href="home.html" style="text-decoration:none;"><div class="wordmark">EDC Project</div></a>
   <h1>Welcome <em>back.</em></h1>
   <p class="subtitle">Sign in to manage your collection.</p>
 
@@ -504,6 +504,10 @@ window.switchTab = function(tab) {
 
   // ── OAUTH ────────────────────────────────────────────────────────────────────
   window.handleOAuth = async function(provider) {
+    // After OAuth callback, choose-username.html will check if user already has
+    // a username and redirect to home.html if so — this handles both new Google
+    // users (who need to pick a username) and existing email/password users
+    // who link Google (who already have one and will be passed straight through).
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: { redirectTo: window.location.origin + "/choose-username.html" },

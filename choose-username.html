@@ -281,7 +281,7 @@
 </div>
 
 <div class="card" id="main-card" style="display:none;">
-  <div class="wordmark">EDC Project</div>
+  <a href="home.html" style="text-decoration:none;"><div class="wordmark">EDC Project</div></a>
   <h1>One last <em>step.</em></h1>
   <p class="subtitle">Choose a username for your account. This is how you'll appear across the community.</p>
 
@@ -388,15 +388,34 @@
 
     currentUser = session.user;
 
-    // Check if this user already has a username in the profiles table
+    // Check if this user already has a username — either in the profiles table
+    // (covers all users) or in user_metadata (set during email/password signup).
+    // This ensures existing email+password users who sign in with Google are
+    // passed straight through without being asked to pick a username again.
+    const existingMetaUsername = currentUser.user_metadata?.username;
+
     const { data: profile } = await supabase
       .from("profiles")
       .select("username")
       .eq("id", currentUser.id)
       .maybeSingle();
 
-    if (profile?.username) {
-      // Already has a username — go straight to home
+    if (profile?.username || existingMetaUsername) {
+      // Already has a username — if profile row exists but is missing the username
+      // from user_metadata (or vice versa), sync them up for consistency.
+      if (existingMetaUsername && !profile?.username) {
+        // Backfill the profiles table for email/password users linking Google
+        await supabase.from("profiles").upsert({
+          id: currentUser.id,
+          username: existingMetaUsername,
+          email: currentUser.email,
+          updated_at: new Date().toISOString(),
+        });
+      } else if (profile?.username && !existingMetaUsername) {
+        // Backfill user_metadata for users whose username is only in profiles
+        await supabase.auth.updateUser({ data: { username: profile.username } });
+      }
+      // Go straight to home — no need to choose a username
       window.location.href = "home.html";
       return;
     }
