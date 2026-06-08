@@ -887,8 +887,6 @@
     import { syncThemeFromUser } from "./theme.js";
     import { loadComments, submitComment } from './comments.js';
 
-    const IMG_COLS = ["image_url1","image_url2","image_url3","image_url4","image_url5",
-                      "image_url6","image_url7","image_url8","image_url9","image_url10"];
     const BUCKET = "item-images";
 
     let currentItemId  = null;
@@ -963,13 +961,12 @@
         .select(`
           id, maker_id, user_id, category_id, material_id,
           variant, size, msrp, born_on_date, deleted_at,
-          image_url1, image_url2, image_url3, image_url4, image_url5,
-          image_url6, image_url7, image_url8, image_url9, image_url10,
           is_private, comments, extra,
           brands     ( id, company, first_name, last_name ),
           categories ( name ),
           materials  ( name ),
-          profiles:user_id ( username )
+          profiles:user_id ( username ),
+          item_photos ( id, url, sort_order )
         `)
         .eq("id", currentItemId)
         .single();
@@ -1089,7 +1086,9 @@
 
     // ── GALLERY BUILDER ──
     function buildGallery(item) {
-      const images   = IMG_COLS.map(c => item[c]).filter(Boolean);
+      const images   = (item.item_photos || [])
+        .slice().sort((a, b) => a.sort_order - b.sort_order)
+        .map(p => p.url);
       const mainEl   = document.getElementById("gallery-main");
       const thumbsEl = document.getElementById("gallery-thumbs");
       thumbsEl.innerHTML = "";
@@ -1143,27 +1142,28 @@
       const files = Array.from(e.target.files);
       if (!files.length) return;
 
-      // Re-fetch current item to get latest filled slots
-      const { data: current } = await supabase
-        .from("items")
-        .select(IMG_COLS.join(", "))
-        .eq("id", currentItemId)
-        .single();
+      // Re-fetch current photo count
+      const { data: currentPhotos } = await supabase
+        .from("item_photos")
+        .select("id, sort_order")
+        .eq("item_id", currentItemId)
+        .order("sort_order");
 
-      const existing = IMG_COLS.map(c => current?.[c]).filter(Boolean);
-      const slots    = IMG_COLS.filter(c => !current?.[c]); // empty column names
+      const existingCount = (currentPhotos || []).length;
+      const remaining     = 10 - existingCount;
 
-      if (slots.length === 0) {
+      if (remaining === 0) {
         setUploadStatus("error", "Maximum of 10 photos reached.");
         return;
       }
 
-      const toUpload = files.slice(0, slots.length); // cap at available slots
+      const toUpload = files.slice(0, remaining);
 
       setUploadStatus("uploading", `Uploading ${toUpload.length} photo${toUpload.length > 1 ? "s" : ""}…`);
 
       try {
-        const updates = {};
+        const newRows = [];
+        let nextOrder = existingCount;
 
         for (let i = 0; i < toUpload.length; i++) {
           const file     = toUpload[i];
@@ -1176,23 +1176,18 @@
           if (uploadErr) throw new Error(uploadErr.message);
 
           const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(filename);
-          updates[slots[i]] = urlData.publicUrl;
+          newRows.push({ item_id: currentItemId, url: urlData.publicUrl, sort_order: nextOrder++ });
         }
 
-        // Save new URLs to database
-        const { error: updateErr } = await supabase
-          .from("items")
-          .update(updates)
-          .eq("id", currentItemId);
-
-        if (updateErr) throw new Error(updateErr.message);
+        const { error: insertErr } = await supabase.from("item_photos").insert(newRows);
+        if (insertErr) throw new Error(insertErr.message);
 
         setUploadStatus("success", `${toUpload.length} photo${toUpload.length > 1 ? "s" : ""} added!`);
 
         // Rebuild gallery with new images
         const { data: refreshed } = await supabase
           .from("items")
-          .select(IMG_COLS.join(", ") + ", maker_id, user_id, category_id, material_id, is_private, variant, brands(company), categories(name), materials(name), comments, extra, size, msrp, born_on_date")
+          .select("id, maker_id, user_id, category_id, material_id, is_private, variant, brands(company), categories(name), materials(name), comments, extra, size, msrp, born_on_date, item_photos(id, url, sort_order)")
           .eq("id", currentItemId)
           .single();
 

@@ -777,7 +777,7 @@ if (isLoggedIn) {
       // Show My Collection mini-strip
       const { data: myItems } = await supabase
         .from("items")
-        .select("id, image_url1, image_url2, image_url3, brands(company), categories(name)")
+        .select("id, brands(company), categories(name), item_photos(url, sort_order)")
         .eq("owner_id", currentUserId)
         .is("deleted_at", null)
         .order("created_at", { ascending: false })
@@ -795,7 +795,8 @@ if (isLoggedIn) {
       const grid = document.getElementById("my-strip-grid");
 
       (myItems || []).slice(0, 4).forEach(it => {
-        const img   = it.image_url1 || it.image_url2 || it.image_url3;
+        const photos = (it.item_photos||[]).sort((a,b)=>a.sort_order-b.sort_order);
+        const img   = photos[0]?.url || null;
         const label = [it.brands?.company, it.categories?.name].filter(Boolean).join(" · ");
         const card  = document.createElement("a");
         card.href         = `item.html?id=${it.id}`;
@@ -881,7 +882,7 @@ if (isLoggedIn) {
     }
 
     function pickImg(item) {
-      const candidates = [item.image_url1, item.image_url2, item.image_url3].filter(Boolean);
+      const candidates = (item.item_photos||[]).sort((a,b)=>a.sort_order-b.sort_order).map(p=>p.url);
       if (!candidates.length) return null;
       return candidates[Math.floor(Math.random() * candidates.length)];
     }
@@ -894,7 +895,7 @@ if (isLoggedIn) {
         .from("items")
         .select(`
           id, variant, created_at,
-          image_url1, image_url2, image_url3,
+          item_photos ( url, sort_order ),
           maker_id,
           brands     ( id, company ),
           categories ( name ),

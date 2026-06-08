@@ -675,8 +675,6 @@
     import { syncThemeFromUser } from "./theme.js";
     import { addNewLookup } from "./form-shared.js";
 
-    const IMG_COLS  = ["image_url1","image_url2","image_url3","image_url4","image_url5",
-                       "image_url6","image_url7","image_url8","image_url9","image_url10"];
     const BUCKET    = "item-images";
     const MAX_PHOTOS = 10;
 
@@ -898,7 +896,14 @@
 
       currentItem = item;
       const isOwner = true; // page already enforces owner-only access via query
-      imageUrls   = IMG_COLS.map(c => item[c]).filter(Boolean);
+
+      // Fetch photos from item_photos table
+      const { data: photoRows } = await supabase
+        .from("item_photos")
+        .select("id, url, sort_order")
+        .eq("item_id", itemId)
+        .order("sort_order");
+      imageUrls = (photoRows || []).map(p => p.url);
 
       // Populate page subtitle
       document.getElementById("page-sub").textContent = `ID #${item.id}`;
@@ -971,10 +976,6 @@
         btn.disabled = true;
         toast("Saving…", "info");
 
-        // Pack imageUrls back into image_url1..10
-        const imageFields = {};
-        IMG_COLS.forEach((col, i) => { imageFields[col] = imageUrls[i] ?? null; });
-
         const updates = {
           category_id:  catId,
           material_id:  matId,
@@ -985,8 +986,14 @@
           extra:        document.getElementById("edit-extra").value.trim()    || null,
           comments:     document.getElementById("edit-comments").value.trim() || null,
           is_private:   document.getElementById("edit-private").checked,
-          ...imageFields,
         };
+
+        // Sync item_photos: delete all existing rows, re-insert current order
+        await supabase.from("item_photos").delete().eq("item_id", itemId);
+        if (imageUrls.length > 0) {
+          const photoRows = imageUrls.map((url, i) => ({ item_id: parseInt(itemId), url, sort_order: i }));
+          await supabase.from("item_photos").insert(photoRows);
+        }
 
         const { error } = await supabase.from("items").update(updates).eq("id", itemId);
 

@@ -872,7 +872,7 @@
 
         const { data: items } = await supabase
           .from("items")
-          .select("id, variant, image_url1, image_url2, image_url3, is_private, user_id, brands(company), categories(name)")
+          .select("id, variant, is_private, user_id, brands(company), categories(name), item_photos(url, sort_order)")
           .in("id", links.map(l => l.item_id));
 
         grid.innerHTML = "";
@@ -880,7 +880,8 @@
         (items || [])
           .filter(it => !it.is_private || it.user_id === viewerId) // hide private from non-owners
           .forEach(it => {
-            const img  = it.image_url1 || it.image_url2 || it.image_url3;
+            const photos = (it.item_photos||[]).sort((a,b)=>a.sort_order-b.sort_order);
+            const img  = photos[0]?.url || null;
             const name = it.brands?.company || "Unknown Brand";
             const sub  = [it.categories?.name, it.variant && it.variant !== "none" ? it.variant : null].filter(Boolean).join(" · ");
 

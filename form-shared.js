@@ -264,11 +264,6 @@ export function initProgressiveUpload({ inputEl, previewEl, userId, onUrlsChange
 
 // ── DB INSERT ─────────────────────────────────────────────────────────────────
 export async function saveItem({ makerId, step1, step2, imageUrls, userId }) {
-  const imageFields = {};
-  for (let i = 0; i < MAX_PHOTOS; i++) {
-    imageFields[`image_url${i + 1}`] = imageUrls[i] ?? null;
-  }
-
   const item = {
     user_id:      userId,
     creator_id:   userId,   // Phase 1: who created the record — never changes
@@ -283,11 +278,25 @@ export async function saveItem({ makerId, step1, step2, imageUrls, userId }) {
     variant:      step2?.variant     || null,
     extra:        step2?.extra       || null,
     comments:     step2?.comments    || null,
-    ...imageFields,
   };
 
-  const { error } = await supabase.from("items").insert([item]);
+  const { data: inserted, error } = await supabase
+    .from("items")
+    .insert([item])
+    .select("id")
+    .single();
   if (error) throw new Error(error.message);
+
+  // Insert photos into item_photos table
+  if (imageUrls.length > 0) {
+    const photoRows = imageUrls.map((url, i) => ({
+      item_id:    inserted.id,
+      url,
+      sort_order: i,
+    }));
+    const { error: photoError } = await supabase.from("item_photos").insert(photoRows);
+    if (photoError) throw new Error(photoError.message);
+  }
 }
 
 // ── CONFIRM DIALOG ────────────────────────────────────────────────────────────
@@ -503,19 +512,8 @@ export async function addNewLookup(table, brandId = null) {
     .single();
 
   if (error) {
-    // Unique constraint violation — entry already exists, fetch and return it
+    // Unique constraint violation — entry already exists
     if (error.code === "23505") {
-      const { data: existing } = await supabase
-        .from(table)
-        .select("id, name")
-        .ilike("name", name)
-        .single();
-
-      if (existing) {
-        showToast(`"${existing.name}" already exists — selected for you`, "info");
-        haptic("light");
-        return { id: existing.id, name: existing.name };
-      }
       showToast(`"${name}" already exists — select it from the list`, "error");
       haptic("error");
     } else {
@@ -670,16 +668,7 @@ export async function loadChips({ table, containerId, addChipId, onSelect, brand
       });
     },
     addAndSelect(id, name) {
-      // If a chip for this id already exists (e.g. duplicate entry), just select it
-      const existing = container.querySelector(`.chip[data-id="${id}"]:not(.chip-add)`);
-      if (existing) {
-        container.querySelectorAll(".chip:not(.chip-add)").forEach(c => c.classList.remove("selected"));
-        existing.classList.add("selected");
-        haptic("light");
-        onSelect(id);
-        return;
-      }
-      // Otherwise insert a brand-new chip before the add chip
+      // Insert new chip before the add chip
       const newChip = renderChip(id, name);
       container.insertBefore(newChip, addChip);
       container.querySelectorAll(".chip:not(.chip-add)").forEach(c => c.classList.remove("selected"));

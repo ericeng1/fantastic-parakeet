@@ -498,7 +498,7 @@
 
         let query = supabase
           .from("items")
-          .select(`id, variant, image_url1, image_url2, image_url3, created_at,
+          .select(`id, variant, created_at, item_photos(url, sort_order),
                    categories(name), materials(name)`)
           .eq("maker_id", makerId)
           .eq("is_private", false)
@@ -550,7 +550,7 @@
       }
 
       function pickImage(item) {
-        const c = [item.image_url1, item.image_url2, item.image_url3].filter(Boolean);
+        const c = (item.item_photos||[]).sort((a,b)=>a.sort_order-b.sort_order).map(p=>p.url);
         return c.length ? c[Math.floor(Math.random() * c.length)] : null;
       }
 
