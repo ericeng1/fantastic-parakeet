@@ -503,8 +503,19 @@ export async function addNewLookup(table, brandId = null) {
     .single();
 
   if (error) {
-    // Unique constraint violation — entry already exists
+    // Unique constraint violation — entry already exists, fetch and return it
     if (error.code === "23505") {
+      const { data: existing } = await supabase
+        .from(table)
+        .select("id, name")
+        .ilike("name", name)
+        .single();
+
+      if (existing) {
+        showToast(`"${existing.name}" already exists — selected for you`, "info");
+        haptic("light");
+        return { id: existing.id, name: existing.name };
+      }
       showToast(`"${name}" already exists — select it from the list`, "error");
       haptic("error");
     } else {
