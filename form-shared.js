@@ -670,7 +670,16 @@ export async function loadChips({ table, containerId, addChipId, onSelect, brand
       });
     },
     addAndSelect(id, name) {
-      // Insert new chip before the add chip
+      // If a chip for this id already exists (e.g. duplicate entry), just select it
+      const existing = container.querySelector(`.chip[data-id="${id}"]:not(.chip-add)`);
+      if (existing) {
+        container.querySelectorAll(".chip:not(.chip-add)").forEach(c => c.classList.remove("selected"));
+        existing.classList.add("selected");
+        haptic("light");
+        onSelect(id);
+        return;
+      }
+      // Otherwise insert a brand-new chip before the add chip
       const newChip = renderChip(id, name);
       container.insertBefore(newChip, addChip);
       container.querySelectorAll(".chip:not(.chip-add)").forEach(c => c.classList.remove("selected"));
