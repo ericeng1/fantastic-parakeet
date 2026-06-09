@@ -313,19 +313,9 @@
     }
 
     .feed-card-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    .meta-pill {
-      font-size: 11px;
+      font-size: 12px;
       color: var(--muted);
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 3px 8px;
-      letter-spacing: 0.03em;
+      letter-spacing: 0.04em;
     }
 
     .feed-card-date {
@@ -929,10 +919,11 @@ if (isLoggedIn) {
       items.forEach((item, i) => {
         const img   = pickImg(item);
         const brand = item.brands?.company || "Unknown Brand";
-        const pills = [
-          item.categories?.name,
-          item.materials?.name,
-          item.variant && item.variant !== "none" ? item.variant : null,
+
+        const category = item.categories?.name || "";
+        const metaParts = [
+          item.variant && item.variant !== "none" ? `${item.variant}` : null,
+          item.materials?.name ? `${item.materials.name}` : null,
         ].filter(Boolean);
 
         const card = document.createElement("a");
@@ -948,14 +939,12 @@ if (isLoggedIn) {
               : `<div class="no-img">◻</div>`}
           </div>
           <div class="feed-card-body">
-            <div class="feed-card-eyebrow">
+            <div class="feed-card-eyebrow">${category}</div>
+            <div class="feed-card-brand">
               <a href="maker.html?id=${item.maker_id}" style="color:inherit;text-decoration:none;"
                  onclick="event.stopPropagation();">${brand}</a>
             </div>
-            <div class="feed-card-brand">${brand}</div>
-            <div class="feed-card-meta">
-              ${pills.map(p => `<span class="meta-pill">${p}</span>`).join("")}
-            </div>
+            ${metaParts.length ? `<div class="feed-card-meta">${metaParts.join(" · ")}</div>` : ""}
             <div class="feed-card-date">${formatDate(item.created_at)}</div>
           </div>`;
 
