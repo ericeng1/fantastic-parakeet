@@ -471,9 +471,7 @@
             size,
             msrp,
             born_on_date,
-            image_url1,
-            image_url2,
-            image_url3,
+            item_photos ( url, sort_order ),
             is_private,
             comments,
             extra,
@@ -553,7 +551,8 @@
             card.style.display = idx < visibleCount ? 'block' : 'none';
             card.id = `item-${groupIndex}-${idx}`;
 
-            const imageUrl = item.image_url1 || item.image_url2 || item.image_url3;
+            const photos   = (item.item_photos || []).sort((a, b) => a.sort_order - b.sort_order);
+            const imageUrl = photos[0]?.url || null;
             const imageHtml = imageUrl
               ? `<img class="card-image" src="${imageUrl}" alt="" loading="lazy"
                   onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
