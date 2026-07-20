@@ -101,6 +101,23 @@
 
     .back-link:hover { color: var(--text); }
 
+    .admin-link {
+      font-size: 12px;
+      color: var(--accent);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      letter-spacing: 0.04em;
+      padding: 4px 10px;
+      border: 1px solid rgba(200,150,74,0.35);
+      border-radius: 20px;
+      background: rgba(200,150,74,0.08);
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .admin-link:hover { background: rgba(200,150,74,0.16); border-color: var(--accent); }
+
     /* ── PAGE ── */
     .page {
       max-width: 580px;
@@ -399,6 +416,7 @@
     <div class="topbar-left">
       <a href="home.html" class="logo">Showoffy</a>
       <a href="home.html" class="back-link" id="back-link">← Home</a>
+      <a href="admin-add-maker.html" class="admin-link" id="admin-link" style="display:none;">+ Add Maker</a>
     </div>
   </header>
 
@@ -522,6 +540,17 @@
     if (!session) { window.location.href = "login.html"; }
     // Use getUser() to get fresh user_metadata (getSession returns cached data)
     const { data: { user } } = await supabase.auth.getUser();
+
+    // ── ADMIN LINK VISIBILITY ──
+    const { data: roleRow } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .single();
+
+    if (roleRow?.role === "admin") {
+      document.getElementById("admin-link").style.display = "flex";
+    }
 
     // ── POPULATE FIELDS ──
     document.getElementById("email-display").value =
